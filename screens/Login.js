@@ -23,16 +23,28 @@ class Login extends React.Component {
     };
   }
 
+  // Check AsyncStorage on component mount
+  async componentDidMount() {
+    try {
+      const userDetails = await AsyncStorage.getItem("userDetails");
+      if (userDetails) {
+        // If user is already logged in, navigate directly to "App"
+        this.props.navigation.navigate("App");
+      }
+    } catch (error) {
+      console.error("Error checking AsyncStorage", error);
+    }
+  }
 
   handleLogin = async () => {
     const { email, password } = this.state;
     console.log(email, password);
-  
+
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password.");
       return;
     }
-  
+
     try {
       const response = await fetch("https://health-project-backend-url.vercel.app/login", {
         method: "POST",
@@ -41,14 +53,14 @@ class Login extends React.Component {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.status === 200 && data.success) {
         // Store user details in AsyncStorage
         const userDetails = JSON.stringify(data.user); // Assuming `data.user` contains the user details
         await AsyncStorage.setItem("userDetails", userDetails);
-  
+
         Alert.alert("Success", "Login successful!");
         this.props.navigation.navigate("App"); // Navigate to the App screen
       } else {
@@ -59,7 +71,6 @@ class Login extends React.Component {
       console.error(error);
     }
   };
-  
 
   render() {
     return (

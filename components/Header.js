@@ -68,6 +68,12 @@ const Header = ({ back, title, white, transparent, bgColor, iconColor, titleColo
         <BasketButton key='basket-title' navigation={navigation} isWhite={white} />
       ]
     }
+    if (title.startsWith('Hi')) {
+      return [
+        <BellButton key='chat-home' navigation={navigation} isWhite={white} />,
+        <BasketButton key='basket-home' navigation={navigation} isWhite={white} />
+      ];
+    }
 
     switch (title) {
       case 'Home':

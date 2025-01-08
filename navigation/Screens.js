@@ -19,6 +19,8 @@ import Login from "../screens/Login";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("screen");
 
@@ -151,6 +153,24 @@ function ProfileStack(props) {
 }
 
 function HomeStack(props) {
+  const [userName, setUserName] = useState(""); // State to store the user's name
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const userDetails = await AsyncStorage.getItem("userDetails");
+        if (userDetails) {
+          const user = JSON.parse(userDetails);
+          setUserName(user.name); // Assuming the user's name is stored as `name`
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserName();
+  }, []); // Run once when the component mounts
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -164,36 +184,21 @@ function HomeStack(props) {
         options={{
           header: ({ navigation, scene }) => (
             <Header
-              title="Home"
+              title={`Hi ${userName}`} // Dynamically display the name
               search
               options
               navigation={navigation}
               scene={scene}
             />
           ),
+          
           cardStyle: { backgroundColor: "#F8F9FE" },
-        }}
-      />
-      <Stack.Screen
-        name="Pro"
-        component={Pro}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              title=""
-              back
-              white
-              transparent
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true,
         }}
       />
     </Stack.Navigator>
   );
 }
+
 
 export default function OnboardingStack(props) {
   return (

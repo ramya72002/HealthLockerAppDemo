@@ -5,7 +5,8 @@ import {
   Dimensions,
   StatusBar,
   KeyboardAvoidingView,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableOpacity
 } from "react-native";
 import { Block, Checkbox, Text, theme } from "galio-framework";
 import { Button, Icon, Input } from "../components";
@@ -41,7 +42,7 @@ const Register = () => {
         navigation.navigate("app");
       } else if (response.status === 400 && data.message === "Email already registered.") {
         alert("Email is already registered. Please log in.");
-        navigation.navigate("login"); // Redirect to login if email already exists
+        navigation.navigate("Login"); // Redirect to login if email already exists
       } else {
         alert('Registration failed. Please try again.');
       }
@@ -68,6 +69,16 @@ const Register = () => {
               </Text>
             </Block>
             <Block flex center>
+            <Block middle style={styles.loginText}>
+                  <Text color={argonTheme.COLORS.MUTED} size={14}>
+                    Already have an account?{" "}
+                    <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                      <Text color={argonTheme.COLORS.PRIMARY} size={14} bold>
+                        Login
+                      </Text>
+                    </TouchableOpacity>
+                  </Text>
+                </Block>
               <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior="padding"

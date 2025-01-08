@@ -1,5 +1,5 @@
 import { Block, Text, theme } from "galio-framework";
-import { Image, ScrollView, StyleSheet } from "react-native";
+import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 import { DrawerItem as DrawerCustomItem } from "../components";
 import Images from "../constants/Images";
@@ -14,6 +14,14 @@ function CustomDrawerContent({
   ...rest
 }) {
   const screens = ["Home", "Profile", "Account", "Elements", "Articles"];
+  
+  const handleLogout = () => {
+    // Clear local storage
+    localStorage.clear();
+    // Navigate to the Login screen
+    navigation.navigate("Login");
+  };
+
   return (
     <Block
       style={styles.container}
@@ -52,6 +60,9 @@ function CustomDrawerContent({
           <DrawerCustomItem title="Getting Started" navigation={navigation} />
         </ScrollView>
       </Block>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
     </Block>
   );
 }
@@ -65,6 +76,20 @@ const styles = StyleSheet.create({
     paddingBottom: theme.SIZES.BASE,
     paddingTop: theme.SIZES.BASE * 3,
     justifyContent: "center",
+  },
+  logoutButton: {
+    backgroundColor: "red",
+    paddingVertical: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 10,
+    borderRadius: 5,
+    cursor: "pointer",
+  },
+  logoutText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

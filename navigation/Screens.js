@@ -15,15 +15,15 @@ import Pro from "../screens/Pro";
 import Profile from "../screens/Profile";
 import React from "react";
 import Register from "../screens/Register";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Login from "../screens/Login";
+
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const { width } = Dimensions.get("screen");
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-const Tab = createBottomTabNavigator();
 
 function ElementsStack(props) {
   return (
@@ -210,6 +210,10 @@ export default function OnboardingStack(props) {
           headerTransparent: true,
         }}
       />
+                    <Stack.Screen name="Login" component={Login} />
+
+              <Stack.Screen name="Register" component={Register} />
+
       <Stack.Screen name="App" component={AppStack} />
     </Stack.Navigator>
   );

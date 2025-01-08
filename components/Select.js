@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Picker } from 'react-native';
 import PropTypes from 'prop-types';
-import ModalDropdown from 'react-native-modal-dropdown';
 import { Block, Text } from 'galio-framework';
 
 import Icon from './Icon';
@@ -12,17 +11,17 @@ class DropDown extends React.Component {
     value: 1,
   }
 
-  handleOnSelect = (index, value) => {
+  handleOnValueChange = (value) => {
     const { onSelect } = this.props;
 
     this.setState({ value: value });
-    onSelect && onSelect(index, value);
+    onSelect && onSelect(value);
   }
 
   render() {
-    const { onSelect, iconName, iconFamily, iconSize, iconColor, color, textStyle, style, ...props } = this.props;
+    const { onSelect, iconName, iconFamily, iconSize, iconColor, color, textStyle, style, options, ...props } = this.props;
 
-    const modalStyles = [
+    const pickerStyles = [
       styles.qty,
       color && { backgroundColor: color },
       style
@@ -34,17 +33,20 @@ class DropDown extends React.Component {
     ];
 
     return (
-      <ModalDropdown
-        style={modalStyles}
-        onSelect={this.handleOnSelect}
-        dropdownStyle={styles.dropdown}
-        dropdownTextStyle={{paddingLeft:16, fontSize:12}}
-        {...props}>
-        <Block flex row middle space="between">
-          <Text size={12} style={textStyles}>{this.state.value}</Text>
-          <Icon name={iconName || "nav-down"} family={iconFamily || "ArgonExtra"} size={iconSize || 10} color={iconColor || argonTheme.COLORS.WHITE} />
-        </Block>
-      </ModalDropdown>
+      <Block flex row middle style={pickerStyles}>
+        <Text size={12} style={textStyles}>{this.state.value}</Text>
+        <Picker
+          selectedValue={this.state.value}
+          style={{ height: 50, width: 150, opacity: 0 }}
+          onValueChange={this.handleOnValueChange}
+          {...props}
+        >
+          {options.map((option, index) => (
+            <Picker.Item key={index} label={option} value={option} />
+          ))}
+        </Picker>
+        <Icon name={iconName || "nav-down"} family={iconFamily || "ArgonExtra"} size={iconSize || 10} color={iconColor || argonTheme.COLORS.WHITE} />
+      </Block>
     )
   }
 }
@@ -56,6 +58,7 @@ DropDown.propTypes = {
   iconSize: PropTypes.number,
   color: PropTypes.string,
   textStyle: PropTypes.any,
+  options: PropTypes.array, // Array of options to be displayed in the dropdown
 };
 
 const styles = StyleSheet.create({
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: argonTheme.COLORS.DEFAULT,
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom:9.5,
+    paddingBottom: 9.5,
     borderRadius: 4,
     shadowColor: "rgba(0, 0, 0, 0.1)",
     shadowOffset: { width: 0, height: 2 },
@@ -73,12 +76,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: argonTheme.COLORS.WHITE,
-    fontWeight: '600'
-  },
-  dropdown: {
-    marginTop: 8,
-    marginLeft: -16,
-    width: 100,
+    fontWeight: '600',
   },
 });
 

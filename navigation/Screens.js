@@ -16,6 +16,7 @@ import Profile from "../screens/Profile";
 import React from "react";
 import Register from "../screens/Register";
 import Login from "../screens/Login";
+import CameraUpload from "../screens/CameraUpload";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -218,6 +219,7 @@ export default function OnboardingStack(props) {
                     <Stack.Screen name="Login" component={Login} />
 
               <Stack.Screen name="Register" component={Register} />
+              <Stack.Screen name="CameraUpload" component={CameraUpload} />
 
       <Stack.Screen name="App" component={AppStack} />
     </Stack.Navigator>

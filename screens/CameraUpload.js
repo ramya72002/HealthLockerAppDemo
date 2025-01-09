@@ -1,60 +1,63 @@
 import React, { useState } from "react";
 import { StyleSheet, ImageBackground, Dimensions, StatusBar, View, TouchableOpacity, Text } from "react-native";
 import { Images, argonTheme } from "../constants";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
 
 const { width, height } = Dimensions.get("screen");
 
 const CameraUpload = () => {
-  const [selectedImage, setSelectedImage] = useState(null); // State to store the selected image URI
+  const [image, setImage] = useState();
+  const [modelVisible, setModelVisible] = useState(false); // added missing state
 
-  // Function to handle camera launch
-  const handleCameraLaunch = () => {
-    console.log("Launching camera..."); // Add this log
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
-    };
-  
-    console.log("Launching camera with options: ", options); // Log options too
-  
-    launchCamera(options, (response) => {
-      console.log("Camera response:", response); // Log response
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.error) {
-        console.log('Camera Error: ', response.error);
+  const handleTakePhoto = async () => {
+    try {
+      const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+      if (cameraPermission.granted) {
+        let result = await ImagePicker.launchCameraAsync({
+          cameraType: ImagePicker.CameraType.front,
+          allowsEditing: true, // fixed typo here
+          aspect: [1, 1],
+        });
+
+        if (!result.canceled) {
+          await saveImage(result.assets[0].uri);
+        }
       } else {
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        setSelectedImage(imageUri); // Update the state with the selected image URI
-        console.log("Image URI:", imageUri);
+        alert("Camera permission is required!");
       }
-    });
+    } catch (error) {
+      alert(error.message);
+      setModelVisible(false);
+    }
   };
-  
 
-  // Function to handle choosing image from gallery
-  const handleChooseFromGallery = () => {
-    console.log("Choose from Gallery button pressed");
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
-    };
+  const saveImage = async (imageUri) => {
+    try {
+      setImage(imageUri);
+      setModelVisible(false); // close modal or handle visibility
+    } catch (error) {
+      console.error("Error saving image:", error);
+      throw error;
+    }
+  };
 
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('Image picker error: ', response.error);
-      } else {
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        setSelectedImage(imageUri); // Update the state with the selected image URI
+  const handleChooseFromGallery = async () => {
+    try {
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        await saveImage(result.assets[0].uri);
       }
-    });
+    } catch (error) {
+      console.error("Error choosing from gallery:", error);
+      alert("Failed to pick image from gallery");
+    }
   };
 
   return (
@@ -65,7 +68,7 @@ const CameraUpload = () => {
         style={{ width, height, zIndex: 1 }}
       >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableOpacity style={styles.button} onPress={handleCameraLaunch}>
+          <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
             <Text style={styles.buttonText}>Take Photo</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleChooseFromGallery}>

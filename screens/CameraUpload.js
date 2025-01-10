@@ -52,7 +52,7 @@ const CameraUpload = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await axios.post("http://192.168.1.2:80/upload", formData, {
+      const response = await axios.post("https://health-project-backend-url.vercel.app/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

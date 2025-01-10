@@ -1,15 +1,24 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, Image } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; 
 import { format } from "date-fns";  // Use date-fns for formatting
+import { useRoute } from '@react-navigation/native';  // Import useRoute hook
+import { useNavigation } from '@react-navigation/native'; // useNavigation hook
+
 
 const Categories = () => {
+  const navigation = useNavigation(); // useNavigation hook
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Use the useRoute hook to access the params passed from the previous screen
+  const route = useRoute();
+  const { imageUrl } = route.params || {};  // Destructure imageUrl from params, default to an empty object
 
   const categories = [
     "Cardiology (Heart Health)",
@@ -46,7 +55,7 @@ const Categories = () => {
       alert("Record uploaded successfully!");
     }, 2000);
   };
-
+console.log("iiii",imageUrl)
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Assign Tags</Text>
@@ -95,6 +104,14 @@ const Categories = () => {
         onConfirm={handleDateChange}
         onCancel={() => setShowDatePicker(false)}
       />
+
+      {/* Display uploaded image if imageUrl is available */}
+      {imageUrl && (
+        <View style={styles.imageContainer}>
+          <Text style={styles.imageText}>Uploaded Image</Text>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+        </View>
+      )}
 
       {/* Upload Button */}
       <TouchableOpacity
@@ -177,6 +194,22 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     color: "#333",
+  },
+  imageContainer: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  imageText: {
+    fontSize: 18,
+    fontWeight: "500",
+    marginBottom: 10,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    borderRadius: 8,
+    resizeMode: 'cover',
+    backgroundColor: 'lightgray',  // Add a background to see if the image container is being rendered.
   },
   button: {
     backgroundColor: "#007BFF",

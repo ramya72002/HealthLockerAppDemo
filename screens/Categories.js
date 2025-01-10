@@ -5,6 +5,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from "date-fns";  // Use date-fns for formatting
 import { useRoute } from '@react-navigation/native';  // Import useRoute hook
 import { useNavigation } from '@react-navigation/native'; // useNavigation hook
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 
 
 const Categories = () => {
@@ -48,13 +49,58 @@ const Categories = () => {
     setDate(selectedDate || date);
   };
 
-  const handleUpload = () => {
-    setLoading(true);
-    setTimeout(() => {
+const handleUpload = async () => {
+  if (!title || !selectedCategory || !date || !imageUrl) {
+    alert("All fields are required!");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Retrieve user details from AsyncStorage
+    const userDetails = await AsyncStorage.getItem("userDetails");
+    const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
+
+    if (!parsedDetails || !parsedDetails.email) {
+      alert("User details not found. Please log in again.");
       setLoading(false);
+      return;
+    }
+
+    const payload = {
+      email: parsedDetails.email, // Extract email from userDetails
+      image_url: imageUrl,
+      title: title,
+      category: selectedCategory,
+      date_time: date.toISOString(),
+    };
+    console.log(payload)
+
+    const response = await fetch("https://health-project-backend-url.vercel.app/uploads", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    console.log("req",result)
+
+    if (response.ok) {
       alert("Record uploaded successfully!");
-    }, 2000);
-  };
+    } else {
+      alert(result.message || "Failed to upload record.");
+    }
+  } catch (error) {
+    console.error("Error uploading record:", error);
+    alert("An error occurred. Please try again later.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
 console.log("iiii",imageUrl)
   return (
     <View style={styles.container}>

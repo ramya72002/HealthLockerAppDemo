@@ -16,7 +16,7 @@ import Profile from "../screens/Profile";
 import React from "react";
 import Register from "../screens/Register";
 import Categories from "../screens/Categories";
-
+import DisplayRecords from "../screens/DisplayRecords";
 import Login from "../screens/Login";
 import CameraUpload from "../screens/CameraUpload";
 
@@ -222,7 +222,7 @@ export default function OnboardingStack(props) {
 
               <Stack.Screen name="Register" component={Register} />
               <Stack.Screen name="Categories" component={Categories} />
-
+              <Stack.Screen name="DisplayRecords" component={DisplayRecords} />              
               <Stack.Screen name="CameraUpload" component={CameraUpload} />
 
       <Stack.Screen name="App" component={AppStack} />

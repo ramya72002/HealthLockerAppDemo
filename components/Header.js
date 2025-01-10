@@ -144,7 +144,7 @@ const Header = ({ back, title, white, transparent, bgColor, iconColor, titleColo
           <Text size={16} style={styles.tabTitle}>{optionLeft || 'Upload EHR'}</Text>
         </Block>
       </Button>
-      <Button shadowless style={styles.tab} onPress={() => navigation.navigate('Categories')}>
+      <Button shadowless style={styles.tab} onPress={() => navigation.navigate('DisplayRecords')}>
         <Block row middle>
           <Icon size={16} name="bag-17" family="ArgonExtra" style={{ paddingRight: 8 }} color={argonTheme.COLORS.ICON} />
           <Text size={16} style={styles.tabTitle}>{optionRight || 'Get EHR'}</Text>

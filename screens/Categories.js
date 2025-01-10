@@ -89,6 +89,8 @@ const handleUpload = async () => {
 
     if (response.ok) {
       alert("Record uploaded successfully!");
+      navigation.navigate("App");
+
     } else {
       alert(result.message || "Failed to upload record.");
     }

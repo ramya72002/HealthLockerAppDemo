@@ -22,7 +22,9 @@
     "@react-navigation/native-stack": "^6.11.0",
     "@types/react": "~18.2.79",
     "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
     "expo": "^51.0.0",
+    "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "^14.0.1",
     "expo-splash-screen": "^0.29.18",
     "expo-status-bar": "~1.12.1",
@@ -35,6 +37,7 @@
     "react-native-gesture-handler": "~2.16.1",
     "react-native-image-picker": "^4.8.5",
     "react-native-modal": "^13.0.1",
+    "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-paper": "^5.12.3",
     "react-native-paper-dropdown": "^1.0.7",
     "react-native-permissions": "^5.2.2",
@@ -48,8 +51,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-text-input-otp": "^1.0.7",
     "react-native-webview": "^11.23.1",
-    "typescript": "~5.3.3",
-    "expo-image-picker": "~15.0.7"
+    "typescript": "~5.3.3"
   },
   "devDependencies": {
     "babel-preset-expo": "^9.3.0"

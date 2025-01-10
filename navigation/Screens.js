@@ -15,6 +15,8 @@ import Pro from "../screens/Pro";
 import Profile from "../screens/Profile";
 import React from "react";
 import Register from "../screens/Register";
+import Categories from "../screens/Categories";
+
 import Login from "../screens/Login";
 import CameraUpload from "../screens/CameraUpload";
 
@@ -219,6 +221,8 @@ export default function OnboardingStack(props) {
                     <Stack.Screen name="Login" component={Login} />
 
               <Stack.Screen name="Register" component={Register} />
+              <Stack.Screen name="Categories" component={Categories} />
+
               <Stack.Screen name="CameraUpload" component={CameraUpload} />
 
       <Stack.Screen name="App" component={AppStack} />

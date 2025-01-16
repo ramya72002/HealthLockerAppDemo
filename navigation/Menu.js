@@ -1,6 +1,6 @@
 import { Block, Text, theme } from "galio-framework";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { DrawerItem as DrawerCustomItem } from "../components";
 import Images from "../constants/Images";
 import React from "react";
@@ -15,11 +15,15 @@ function CustomDrawerContent({
 }) {
   const screens = ["Home", "Profile", "Account", "Elements", "Articles"];
   
-  const handleLogout = () => {
-    // Clear local storage
-    localStorage.clear();
-    // Navigate to the Login screen
-    navigation.navigate("Login");
+  const handleLogout = async () => {
+    try {
+      // Clear AsyncStorage
+      await AsyncStorage.clear();
+      // Navigate to the Login screen
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error("Error clearing AsyncStorage:", error);
+    }
   };
 
   return (
@@ -28,7 +32,7 @@ function CustomDrawerContent({
       forceInset={{ top: "always", horizontal: "never" }}
     >
       <Block flex={0.06} style={styles.header}>
-        <Image styles={styles.logo} source={Images.Logo} />
+        <Image style={styles.logo} source={Images.Logo} />
       </Block>
       <Block flex style={{ paddingLeft: 8, paddingRight: 14 }}>
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
@@ -77,6 +81,11 @@ const styles = StyleSheet.create({
     paddingTop: theme.SIZES.BASE * 3,
     justifyContent: "center",
   },
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: "contain",
+  },
   logoutButton: {
     backgroundColor: "red",
     paddingVertical: 15,
@@ -84,7 +93,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: 10,
     borderRadius: 5,
-    cursor: "pointer",
   },
   logoutText: {
     color: "white",

@@ -9,7 +9,7 @@ import {
   TouchableOpacity
 } from "react-native";
 import { Block, Checkbox, Text, theme } from "galio-framework";
-import { Button, Input } from "../components";
+import { Button, Icon, Input } from "../components";
 import { Images, argonTheme } from "../constants";
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons, Feather, FontAwesome } from '@expo/vector-icons'; // Import icons
@@ -23,6 +23,11 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // To handle loading state
+  const [showPassword, setShowPassword] = useState(false); // To toggle password visibility
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleRegister = async () => {
     setLoading(true); // Show loading indicator
@@ -118,23 +123,36 @@ const Register = () => {
                     }
                   />
                 </Block>
-                <Block width={width * 0.8}>
+                <Block width={width * 0.8} style={{ marginBottom: 15 }}>
                   <Input
                     password
                     borderless
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}
+                    secureTextEntry={!showPassword} // Toggle password visibility
                     iconContent={
-                      <FontAwesome
-                        size={16}
-                        color={argonTheme.COLORS.ICON}
-                        name="lock"
-                        style={styles.inputIcons}
-                      />
+                      <>
+                        <Icon
+                          size={16}
+                          color={argonTheme.COLORS.ICON}
+                          name="lock" // Valid icon for lock
+                          family="Feather" // Using Feather family
+                          style={styles.inputIcons}
+                        />
+                        <Icon
+                          size={16}
+                          color={argonTheme.COLORS.ICON}
+                          name={!showPassword ? "eye-off" : "eye"} // Toggle visibility icon
+                          family="Feather" // Using Feather for "eye" icons
+                          style={styles.eyeIcon}
+                          onPress={togglePasswordVisibility} // Toggle visibility on press
+                        />
+                      </>
                     }
                   />
                 </Block>
+
                 <Block row width={width * 0.75}>
                   <Checkbox
                     checkboxStyle={{
@@ -197,14 +215,19 @@ const styles = StyleSheet.create({
   },
   socialConnect: {
     borderColor: "#8898AA",
-    paddingVertical: 15, // Adds spacing inside the block
-    paddingHorizontal: 10, // Horizontal padding for better alignment
-    alignItems: "center", // Centers content horizontally
-    justifyContent: "center", // Centers content vertically
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
     fontSize: 24,
   },
   inputIcons: {
     marginRight: 12,
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 12,
   },
   createButton: {
     width: width * 0.5,

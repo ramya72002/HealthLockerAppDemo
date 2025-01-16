@@ -9,9 +9,10 @@ import {
   TouchableOpacity
 } from "react-native";
 import { Block, Checkbox, Text, theme } from "galio-framework";
-import { Button, Icon, Input } from "../components";
+import { Button, Input } from "../components";
 import { Images, argonTheme } from "../constants";
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons, Feather, FontAwesome } from '@expo/vector-icons'; // Import icons
 
 const { width, height } = Dimensions.get("screen");
 
@@ -63,23 +64,23 @@ const Register = () => {
       >
         <Block safe flex middle>
           <Block style={styles.registerContainer}>
-          <Block flex={0.25} middle style={styles.socialConnect}>
-  <Text  size={18} style={{ fontWeight: "bold" ,color:argonTheme.COLORS.PRIMARY}}>
-    Your Digital Vault for Health and Wellness
-  </Text>
-</Block>
+            <Block flex={0.25} middle style={styles.socialConnect}>
+              <Text size={18} style={{ fontWeight: "bold", color: argonTheme.COLORS.PRIMARY }}>
+                Your Digital Vault for Health and Wellness
+              </Text>
+            </Block>
 
             <Block flex center>
-            <Block middle style={styles.loginText}>
-                  <Text color={argonTheme.COLORS.MUTED} size={14}>
-                    Already have an account?{" "}
-                    <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                      <Text color={argonTheme.COLORS.PRIMARY} size={14} bold>
-                        Login
-                      </Text>
-                    </TouchableOpacity>
-                  </Text>
-                </Block>
+              <Block middle style={styles.loginText}>
+                <Text color={argonTheme.COLORS.MUTED} size={14}>
+                  Already have an account?{" "}
+                  <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                    <Text color={argonTheme.COLORS.PRIMARY} size={14} bold>
+                      Login
+                    </Text>
+                  </TouchableOpacity>
+                </Text>
+              </Block>
               <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior="padding"
@@ -92,11 +93,10 @@ const Register = () => {
                     value={name}
                     onChangeText={setName}
                     iconContent={
-                      <Icon
+                      <Feather
                         size={16}
                         color={argonTheme.COLORS.ICON}
-                        name="hat-3"
-                        family="ArgonExtra"
+                        name="user"
                         style={styles.inputIcons}
                       />
                     }
@@ -109,11 +109,10 @@ const Register = () => {
                     value={email}
                     onChangeText={setEmail}
                     iconContent={
-                      <Icon
+                      <MaterialIcons
                         size={16}
                         color={argonTheme.COLORS.ICON}
-                        name="ic_mail_24px"
-                        family="ArgonExtra"
+                        name="mail-outline"
                         style={styles.inputIcons}
                       />
                     }
@@ -127,16 +126,14 @@ const Register = () => {
                     value={password}
                     onChangeText={setPassword}
                     iconContent={
-                      <Icon
+                      <FontAwesome
                         size={16}
                         color={argonTheme.COLORS.ICON}
-                        name="padlock-unlocked"
-                        family="ArgonExtra"
+                        name="lock"
                         style={styles.inputIcons}
                       />
                     }
                   />
-                 
                 </Block>
                 <Block row width={width * 0.75}>
                   <Checkbox
@@ -205,39 +202,14 @@ const styles = StyleSheet.create({
     alignItems: "center", // Centers content horizontally
     justifyContent: "center", // Centers content vertically
     fontSize: 24,
-
-  },
-  
-  socialButtons: {
-    width: 120,
-    height: 40,
-    backgroundColor: "#fff",
-    shadowColor: argonTheme.COLORS.BLACK,
-    shadowOffset: {
-      width: 0,
-      height: 4
-    },
-    shadowRadius: 8,
-    shadowOpacity: 0.1,
-    elevation: 1
-  },
-  socialTextButtons: {
-    color: argonTheme.COLORS.PRIMARY,
-    fontWeight: "800",
-    fontSize: 14
   },
   inputIcons: {
     marginRight: 12,
   },
-  passwordCheck: {
-    paddingLeft: 15,
-    paddingTop: 13,
-    paddingBottom: 30,
-  },
   createButton: {
     width: width * 0.5,
-    marginTop: 25
-  }
+    marginTop: 25,
+  },
 });
 
 export default Register;

@@ -11,8 +11,7 @@ const DisplayRecords = () => {
   const [menuVisible, setMenuVisible] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  // const categories = ["All", "Medical", "Fitness", "Nutrition"];
+  const [sortMenuVisible, setSortMenuVisible] = useState(false);
 
   useEffect(() => {
     const fetchEmail = async () => {
@@ -73,6 +72,17 @@ const DisplayRecords = () => {
     setFilteredRecords(filtered);
   };
 
+  const sortRecords = (order) => {
+    const sorted = [...records].sort((a, b) => {
+      const dateA = new Date(a.date_time);
+      const dateB = new Date(b.date_time);
+      return order === "latest" ? dateB - dateA : dateA - dateB;
+    });
+    setRecords(sorted);
+    setFilteredRecords(sorted);
+    setSortMenuVisible(false);
+  };
+
   const renderItem = ({ item, index }) => (
     <View style={styles.recordContainer}>
       <Image source={{ uri: item.image_url }} style={styles.image} />
@@ -116,30 +126,22 @@ const DisplayRecords = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-        <FlatList
-          // data={categories}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => handleCategoryChange(item)}
-              style={[
-                styles.categoryButton,
-                selectedCategory === item && styles.categoryButtonActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryButtonText,
-                  selectedCategory === item && styles.categoryButtonTextActive,
-                ]}
-              >
-                {item}
-              </Text>
+        <TouchableOpacity
+          onPress={() => setSortMenuVisible(!sortMenuVisible)}
+          style={styles.sortButton}
+        >
+          <Text style={styles.sortText}>Sort ⋮</Text>
+        </TouchableOpacity>
+        {sortMenuVisible && (
+          <View style={styles.sortMenu}>
+            <TouchableOpacity onPress={() => sortRecords("latest")}>
+              <Text style={styles.sortOption}>Latest First</Text>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
+            <TouchableOpacity onPress={() => sortRecords("oldest")}>
+              <Text style={styles.sortOption}>Old First</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
       <FlatList
         data={filteredRecords}
@@ -164,31 +166,46 @@ const styles = {
   },
   filterContainer: {
     marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative", // Ensure relative positioning
+    zIndex: 1, // Lower than dropdowns
   },
   searchBox: {
+    flex: 1,
     backgroundColor: "#fff",
     borderRadius: 8,
     padding: 10,
-    marginBottom: 10,
     fontSize: 16,
     color: "#333",
   },
-  categoryButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  categoryButtonActive: {
+  sortButton: {
+    marginLeft: 10,
+    padding: 10,
     backgroundColor: "#007BFF",
+    borderRadius: 8,
   },
-  categoryButtonText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  categoryButtonTextActive: {
+  sortText: {
     color: "#fff",
+    fontSize: 16,
+  },
+  sortMenu: {
+    position: "absolute",
+    top: 50,
+    right: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5, // Ensure dropdown shadow is visible
+    zIndex: 999, // Higher than other elements
+  },
+  sortOption: {
+    fontSize: 16,
+    color: "#007BFF",
+    padding: 10,
   },
   recordContainer: {
     flexDirection: "row",
@@ -201,6 +218,7 @@ const styles = {
     shadowRadius: 5,
     elevation: 3,
     position: "relative",
+    zIndex: 1, // Ensure dropdown appears above this
   },
   image: {
     width: 100,
@@ -245,8 +263,9 @@ const styles = {
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
-    zIndex: 10,
+    elevation: 10, // High elevation for Android
+    zIndex: 999, // Ensure it's on top
+    overflow: "visible",
   },
   menuOption: {
     padding: 10,
@@ -256,5 +275,6 @@ const styles = {
     color: "#007BFF",
   },
 };
+
 
 export default DisplayRecords;

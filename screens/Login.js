@@ -82,11 +82,11 @@ class Login extends React.Component {
         >
           <Block safe flex middle>
             <Block style={styles.registerContainer}>
-              <Block flex={0.25} middle style={styles.socialConnect}>
-                <Text color="#8898AA" size={12}>
-                  Login
-                </Text>
-              </Block>
+            <Block flex={0.25} middle style={styles.socialConnect}>
+  <Text  size={18} style={{ fontWeight: "bold" ,color:argonTheme.COLORS.PRIMARY}}>
+    Your Digital Vault for Health and Wellness
+  </Text>
+</Block>
               <Block flex center>
                 <KeyboardAvoidingView
                   style={{ flex: 1 }}

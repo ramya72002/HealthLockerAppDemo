@@ -63,11 +63,12 @@ const Register = () => {
       >
         <Block safe flex middle>
           <Block style={styles.registerContainer}>
-            <Block flex={0.25} middle style={styles.socialConnect}>
-              <Text color="#8898AA" size={12}>
-                Sign Up
-              </Text>
-            </Block>
+          <Block flex={0.25} middle style={styles.socialConnect}>
+  <Text  size={18} style={{ fontWeight: "bold" ,color:argonTheme.COLORS.PRIMARY}}>
+    Your Digital Vault for Health and Wellness
+  </Text>
+</Block>
+
             <Block flex center>
             <Block middle style={styles.loginText}>
                   <Text color={argonTheme.COLORS.MUTED} size={14}>
@@ -135,15 +136,7 @@ const Register = () => {
                       />
                     }
                   />
-                  <Block row style={styles.passwordCheck}>
-                    <Text size={12} color={argonTheme.COLORS.MUTED}>
-                      Password strength:
-                    </Text>
-                    <Text bold size={12} color={argonTheme.COLORS.SUCCESS}>
-                      {" "}
-                      Strong
-                    </Text>
-                  </Block>
+                 
                 </Block>
                 <Block row width={width * 0.75}>
                   <Checkbox
@@ -206,10 +199,15 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   socialConnect: {
-    backgroundColor: argonTheme.COLORS.WHITE,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: "#8898AA"
+    borderColor: "#8898AA",
+    paddingVertical: 15, // Adds spacing inside the block
+    paddingHorizontal: 10, // Horizontal padding for better alignment
+    alignItems: "center", // Centers content horizontally
+    justifyContent: "center", // Centers content vertically
+    fontSize: 24,
+
   },
+  
   socialButtons: {
     width: 120,
     height: 40,

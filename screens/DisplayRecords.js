@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, ActivityIndicator, TouchableOpacity, FlatList, Alert, Clipboard } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import { View, Text, Image, ActivityIndicator, TouchableOpacity, FlatList, Alert, Clipboard, TextInput } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const DisplayRecords = () => {
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
   const [email, setEmail] = useState(null);
   const [menuVisible, setMenuVisible] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // const categories = ["All", "Medical", "Fitness", "Nutrition"];
 
   useEffect(() => {
     const fetchEmail = async () => {
@@ -32,6 +37,7 @@ const DisplayRecords = () => {
         )
         .then((response) => {
           setRecords(response.data.uploads);
+          setFilteredRecords(response.data.uploads);
           setLoading(false);
         })
         .catch((error) => {
@@ -42,9 +48,29 @@ const DisplayRecords = () => {
   }, [email]);
 
   const handleCopyLink = (link) => {
-    Clipboard.setString(link); // Use the React Native Clipboard API
-    Alert.alert("Copied to Clipboard", "Image link copied successfully."); // Show alert after copying
+    Clipboard.setString(link);
+    Alert.alert("Copied to Clipboard", "Image link copied successfully.");
     setMenuVisible(null);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    filterRecords(query, selectedCategory);
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    filterRecords(searchQuery, category);
+  };
+
+  const filterRecords = (query, category) => {
+    const lowercasedQuery = query.toLowerCase();
+    const filtered = records.filter(
+      (record) =>
+        (category === "All" || record.category === category) &&
+        (record.title.toLowerCase().includes(lowercasedQuery) || record.category.toLowerCase().includes(lowercasedQuery))
+    );
+    setFilteredRecords(filtered);
   };
 
   const renderItem = ({ item, index }) => (
@@ -83,8 +109,40 @@ const DisplayRecords = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Health Records</Text>
+      <View style={styles.filterContainer}>
+        <TextInput
+          style={styles.searchBox}
+          placeholder="Search by title or category"
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+        <FlatList
+          // data={categories}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleCategoryChange(item)}
+              style={[
+                styles.categoryButton,
+                selectedCategory === item && styles.categoryButtonActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.categoryButtonText,
+                  selectedCategory === item && styles.categoryButtonTextActive,
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
       <FlatList
-        data={records}
+        data={filteredRecords}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
       />
@@ -103,6 +161,34 @@ const styles = {
     fontWeight: "600",
     color: "#333",
     marginBottom: 20,
+  },
+  filterContainer: {
+    marginBottom: 20,
+  },
+  searchBox: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  categoryButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  categoryButtonActive: {
+    backgroundColor: "#007BFF",
+  },
+  categoryButtonText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  categoryButtonTextActive: {
+    color: "#fff",
   },
   recordContainer: {
     flexDirection: "row",

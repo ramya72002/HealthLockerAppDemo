@@ -20,6 +20,7 @@ class Login extends React.Component {
     this.state = {
       email: "",
       password: "",
+      showPassword: false,  // New state for toggling password visibility
     };
   }
 
@@ -72,6 +73,12 @@ class Login extends React.Component {
     }
   };
 
+  togglePasswordVisibility = () => {
+    this.setState((prevState) => ({
+      showPassword: !prevState.showPassword,
+    }));
+  };
+
   render() {
     return (
       <Block flex middle>
@@ -82,11 +89,11 @@ class Login extends React.Component {
         >
           <Block safe flex middle>
             <Block style={styles.registerContainer}>
-            <Block flex={0.25} middle style={styles.socialConnect}>
-  <Text  size={18} style={{ fontWeight: "bold" ,color:argonTheme.COLORS.PRIMARY}}>
-    Your Digital Vault for Health and Wellness
-  </Text>
-</Block>
+              <Block flex={0.25} middle style={styles.socialConnect}>
+                <Text size={18} style={{ fontWeight: "bold", color: argonTheme.COLORS.PRIMARY }}>
+                  Your Digital Vault for Health and Wellness
+                </Text>
+              </Block>
               <Block flex center>
                 <KeyboardAvoidingView
                   style={{ flex: 1 }}
@@ -103,8 +110,8 @@ class Login extends React.Component {
                         <Icon
                           size={16}
                           color={argonTheme.COLORS.ICON}
-                          name="hat-3"
-                          family="ArgonExtra"
+                          name="user"  // Changed to valid icon from Feather
+                          family="Feather"  // Changed to Feather family
                           style={styles.inputIcons}
                         />
                       }
@@ -112,19 +119,30 @@ class Login extends React.Component {
                   </Block>
                   <Block width={width * 0.8} style={{ marginBottom: 15 }}>
                     <Input
-                      password
+                      password={true}
                       borderless
                       placeholder="Password"
                       value={this.state.password}
                       onChangeText={(text) => this.setState({ password: text })}
+                      secureTextEntry={!this.state.showPassword}  // Toggle password visibility
                       iconContent={
-                        <Icon
-                          size={16}
-                          color={argonTheme.COLORS.ICON}
-                          name="padlock-unlocked"
-                          family="ArgonExtra"
-                          style={styles.inputIcons}
-                        />
+                        <>
+                          <Icon
+                            size={16}
+                            color={argonTheme.COLORS.ICON}
+                            name="lock"  // Changed to valid icon from Feather
+                            family="Feather"  // Changed to Feather family
+                            style={styles.inputIcons}
+                          />
+                          <Icon
+                            size={16}
+                            color={argonTheme.COLORS.ICON}
+                            name={!this.state.showPassword ? "eye-off" : "eye"}  // Valid icons for visibility toggle
+                            family="Feather"  // Using Feather for "eye" icons
+                            style={styles.eyeIcon}
+                            onPress={this.togglePasswordVisibility}  // Toggle visibility
+                          />
+                        </>
                       }
                     />
                   </Block>
@@ -180,6 +198,12 @@ const styles = StyleSheet.create({
   },
   inputIcons: {
     marginRight: 12,
+  },
+  eyeIcon: {
+    marginLeft: 10,
+    position: 'absolute',  // Position it absolutely to place it at the far right
+    right: 10,  // Align it to the right
+    top: 15,  // Center it vertically in the input field
   },
   loginButton: {
     width: width * 0.5,

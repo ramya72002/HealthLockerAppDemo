@@ -71,7 +71,7 @@ const AddUserID = () => {
   
       if (response.ok) {
         alert("Images and details uploaded successfully!");
-        console.log(result);
+        navigation.navigate("App");
       } else {
         alert(`Failed to save uploads: ${result.message}`);
       }

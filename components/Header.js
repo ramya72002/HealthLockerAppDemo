@@ -150,6 +150,12 @@ const Header = ({ back, title, white, transparent, bgColor, iconColor, titleColo
           <Text size={16} style={styles.tabTitle}>{optionRight || 'Get EHR'}</Text>
         </Block>
       </Button>
+      <Button shadowless style={[styles.tab, styles.divider]} onPress={() => navigation.navigate('SendEHR')}>
+        <Block row middle >
+          <Icon name="diamond" family="ArgonExtra" style={{ paddingRight: 8, cursor: "pointer" }} color={argonTheme.COLORS.ICON} />
+          <Text size={16} style={styles.tabTitle}>{optionLeft || 'Send EHR'}</Text>
+        </Block>
+      </Button>
     </Block>
     );
   };
@@ -260,9 +266,9 @@ const styles = StyleSheet.create({
     borderRightColor: theme.COLORS.ICON,
   },
   search: {
-    height: 48,
+    height: 40,
     width: width - 32,
-    marginHorizontal: 16,
+    marginHorizontal: 10,
     borderWidth: 1,
     borderRadius: 3,
     borderColor: argonTheme.COLORS.BORDER
@@ -274,7 +280,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     backgroundColor: theme.COLORS.TRANSPARENT,
-    width: width * 0.35,
+    width: width * 0.3,
     borderRadius: 3,
   },
   tabTitle: {

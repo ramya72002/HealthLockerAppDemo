@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Argon FREE React Native",
-    "slug": "argon-free-react-native",
+    "name": "Health Locker",
+    "slug": "health-locker",
     "privacy": "public",
     "platforms": [
       "ios",

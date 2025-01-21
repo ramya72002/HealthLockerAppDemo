@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'Argon FREE React Native'
+rootProject.name = 'Health Locker'
 
 dependencyResolutionManagement {
   versionCatalogs {

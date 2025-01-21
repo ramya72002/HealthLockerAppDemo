@@ -87,7 +87,7 @@ class Articles extends React.Component {
         </Text>
         <Block flex>
           <Block style={{ paddingHorizontal: theme.SIZES.BASE }}>
-            <Card item={articles[0]} horizontal />
+            {/* <Card item={articles[0]} horizontal /> */}
             <Block flex row>
               <Card
                 item={articles[1]}

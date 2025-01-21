@@ -11,13 +11,75 @@ const AddUserID = () => {
   const [userID, setUserID] = useState("");
   const [images, setImages] = useState([]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!userID) {
       alert("Please enter a user ID.");
-    } else {
-      alert(`User ID: ${userID}`);
+      return;
     }
-  };
+  
+    if (images.length === 0) {
+      alert("Please upload at least one image.");
+      return;
+    }
+  
+    try {
+      const formData = new FormData();
+      images.forEach((imageUri, index) => {
+        formData.append("files", {
+          uri: imageUri,
+          name: `image${index}.jpg`,
+          type: "image/jpeg",
+        });
+      });
+  
+      // Step 1: Upload images to get URLs
+      const uploadResponse = await fetch("https://health-project-backend-url.vercel.app/multi_upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
+  
+      const uploadResult = await uploadResponse.json();
+  
+      if (!uploadResponse.ok) {
+        alert(`Image upload failed: ${uploadResult.error}`);
+        return;
+      }
+  
+      const imageUrls = uploadResult.image_urls; // Assume this returns an array of image URLs
+  
+      // Step 2: Call the `/uploads_wrt_userId` API with the image URLs
+      const payload = {
+        user_id: userID,
+        image_urls: imageUrls,
+        title: "Sample Title", // Add appropriate title
+        category: "Sample Category", // Add appropriate category
+        date_time: new Date().toISOString(), // Use current date/time
+      };
+  
+      const response = await fetch("https://health-project-backend-url.vercel.app/uploads_wrt_userId", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        alert("Images and details uploaded successfully!");
+        console.log(result);
+      } else {
+        alert(`Failed to save uploads: ${result.message}`);
+      }
+    } catch (error) {
+      alert(`An error occurred: ${error.message}`);
+    }
+  };  
+  
 
   const handleTakePhoto = async () => {
     try {

@@ -105,12 +105,23 @@ const DisplayRecords = () => {
             onPress={() => handleCopyLink(item.image_url)}
             style={styles.menuOption}
           >
-            <Text style={styles.menuOptionText}>Copy Link</Text>
+            <Text style={styles.menuOptionText}>
+              📋 Copy Link
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => alert("Edit functionality coming soon!")}
+            style={styles.menuOption}
+          >
+            <Text style={styles.menuOptionText}>
+              ✏️ Edit
+            </Text>
           </TouchableOpacity>
         </View>
       )}
     </View>
   );
+  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" />;

@@ -87,6 +87,7 @@ const DisplayRecords = () => {
   };
 
   const handleEdit = (item, index) => {
+    setMenuVisible(false);
     setEditIndex(index);
     setEditTitle(item.title);
     setEditCategory(item.category);

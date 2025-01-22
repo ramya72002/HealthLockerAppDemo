@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const DisplayRecords = () => {
+  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
@@ -12,13 +13,18 @@ const DisplayRecords = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
 
   useEffect(() => {
     const fetchEmail = async () => {
       const userDetails = await AsyncStorage.getItem("userDetails");
       const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
-      if (parsedDetails && parsedDetails.email) {
+      if (parsedDetails?.email) {
         setEmail(parsedDetails.email);
+        setUserId(parsedDetails.user_id);
       } else {
         alert("User details not found. Please log in again.");
         setLoading(false);
@@ -31,12 +37,11 @@ const DisplayRecords = () => {
   useEffect(() => {
     if (email) {
       axios
-        .get(
-          `https://health-project-backend-url.vercel.app/get_uploaded_records?email=${email}`
-        )
+        .get(`https://health-project-backend-url.vercel.app/get_uploaded_records?email=${email}`)
         .then((response) => {
-          setRecords(response.data.uploads);
-          setFilteredRecords(response.data.uploads);
+          const uploads = response.data.uploads;
+          setRecords(uploads);
+          setFilteredRecords(uploads);
           setLoading(false);
         })
         .catch((error) => {
@@ -49,7 +54,6 @@ const DisplayRecords = () => {
   const handleCopyLink = (link) => {
     Clipboard.setString(link);
     Alert.alert("Copied to Clipboard", "Image link copied successfully.");
-    setMenuVisible(null);
   };
 
   const handleSearch = (query) => {
@@ -64,10 +68,9 @@ const DisplayRecords = () => {
 
   const filterRecords = (query, category) => {
     const lowercasedQuery = query.toLowerCase();
-    const filtered = records.filter(
-      (record) =>
-        (category === "All" || record.category === category) &&
-        (record.title.toLowerCase().includes(lowercasedQuery) || record.category.toLowerCase().includes(lowercasedQuery))
+    const filtered = records.filter((record) =>
+      (category === "All" || record.category === category) &&
+      (record.title.toLowerCase().includes(lowercasedQuery) || record.category.toLowerCase().includes(lowercasedQuery))
     );
     setFilteredRecords(filtered);
   };
@@ -83,45 +86,84 @@ const DisplayRecords = () => {
     setSortMenuVisible(false);
   };
 
+  const handleEdit = (item, index) => {
+    setEditIndex(index);
+    setEditTitle(item.title);
+    setEditCategory(item.category);
+  };
+
+  const handleSave = async (index) => {
+    try {
+      const updatedRecord = {
+        user_id: userId,
+        image_url: records[index].image_url,
+        title: editTitle,
+        category: editCategory,
+      };
+
+      const response = await axios.put("https://health-project-backend-url.vercel.app/update_uploads_t&c", updatedRecord);
+
+      if (response.data.success) {
+        const updatedRecords = [...records];
+        updatedRecords[index] = { ...updatedRecords[index], title: editTitle, category: editCategory };
+        setRecords(updatedRecords);
+        setFilteredRecords(updatedRecords);
+        setEditIndex(null);
+        alert("Upload details updated successfully.");
+      } else {
+        alert(`Failed to update upload details: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Error while saving data:", error);
+      alert("An error occurred while saving the changes.");
+    }
+  };
+
   const renderItem = ({ item, index }) => (
     <View style={styles.recordContainer}>
       <Image source={{ uri: item.image_url }} style={styles.image} />
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.category}>{item.category}</Text>
-        <Text style={styles.date}>{new Date(item.date_time).toLocaleString()}</Text>
+        {editIndex === index ? (
+          <>
+            <TextInput style={styles.editInput} value={editTitle} onChangeText={setEditTitle} />
+            <TextInput style={styles.editInput} value={editCategory} onChangeText={setEditCategory} />
+          </>
+        ) : (
+          <>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.category}>{item.category}</Text>
+          </>
+        )}
+        <View style={styles.dateContainer}>
+          <Text style={styles.date}>{new Date(item.date_time).toLocaleString()}</Text>
+          {editIndex === index && (
+            <TouchableOpacity onPress={() => handleSave(index)} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-      <TouchableOpacity
-        onPress={() =>
-          setMenuVisible(menuVisible === index ? null : index)
-        }
-        style={styles.menuButton}
-      >
+      <TouchableOpacity onPress={() => setMenuVisible(menuVisible === index ? null : index)} style={styles.menuButton}>
         <Text style={styles.menuDots}>⋮</Text>
       </TouchableOpacity>
       {menuVisible === index && (
         <View style={styles.contextMenu}>
-          <TouchableOpacity
-            onPress={() => handleCopyLink(item.image_url)}
-            style={styles.menuOption}
-          >
-            <Text style={styles.menuOptionText}>
-              📋 Copy Link
-            </Text>
+          <TouchableOpacity onPress={() => handleCopyLink(item.image_url)} style={styles.menuOption}>
+            <Text style={styles.menuOptionText}>📋 Copy Link</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => alert("Edit functionality coming soon!")}
-            style={styles.menuOption}
-          >
-            <Text style={styles.menuOptionText}>
-              ✏️ Edit
-            </Text>
-          </TouchableOpacity>
+          {editingRecord === item.id ? (
+            <TouchableOpacity onPress={() => handleSave(item.id)} style={styles.menuOption}>
+              <Text style={styles.menuOptionText}>💾 Save</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => handleEdit(item, index)} style={styles.menuOption}>
+              <Text style={styles.menuOptionText}>✏️ Edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
   );
-  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" />;
@@ -137,10 +179,7 @@ const DisplayRecords = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-        <TouchableOpacity
-          onPress={() => setSortMenuVisible(!sortMenuVisible)}
-          style={styles.sortButton}
-        >
+        <TouchableOpacity onPress={() => setSortMenuVisible(!sortMenuVisible)} style={styles.sortButton}>
           <Text style={styles.sortText}>Sort ⋮</Text>
         </TouchableOpacity>
         {sortMenuVisible && (
@@ -154,16 +193,45 @@ const DisplayRecords = () => {
           </View>
         )}
       </View>
-      <FlatList
-        data={filteredRecords}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      <FlatList data={filteredRecords} renderItem={renderItem} keyExtractor={(item, index) => index.toString()} />
     </View>
   );
 };
 
 const styles = {
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 3,
+    marginBottom: 8,
+    fontSize: 12,
+  },editInput: {
+    backgroundColor: "#f9f9f9",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 8,
+    fontSize: 16,
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  saveButton: {
+    marginLeft: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    backgroundColor: "#28a745",
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   container: {
     flex: 1,
     padding: 24,
@@ -286,6 +354,5 @@ const styles = {
     color: "#007BFF",
   },
 };
-
 
 export default DisplayRecords;

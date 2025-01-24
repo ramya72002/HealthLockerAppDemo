@@ -1,4 +1,4 @@
-package com.compliancefrontiers.argonfreereactnative
+package com.compliancefrontiers.HealthLocker
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

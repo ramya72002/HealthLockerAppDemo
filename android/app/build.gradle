@@ -109,15 +109,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.compliancefrontiers.argonfreereactnative'
+    namespace 'com.compliancefrontiers.HealthLocker'
     defaultConfig {
-        applicationId 'com.compliancefrontiers.argonfreereactnative'
+        applicationId 'com.compliancefrontiers.HealthLocker'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.7.1"
-        vectorDrawables.useSupportLibrary = true
-   }
+    }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')

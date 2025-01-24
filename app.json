@@ -23,7 +23,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.compliancefrontiers.argonfreereactnative"
+      "bundleIdentifier": "com.compliancefrontiers.HealthLocker"
     },
     "description": "Argon React Native, based on Argon Design System. Coded by Creative Tim",
     "extra": {
@@ -32,7 +32,7 @@
       }
     },
     "android": {
-      "package": "com.compliancefrontiers.argonfreereactnative"
+      "package": "com.compliancefrontiers.HealthLocker"
     }
   }
 }

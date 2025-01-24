@@ -1,4 +1,4 @@
-package com.compliancefrontiers.argonfreereactnative
+package com.compliancefrontiers.HealthLocker
 
 import android.app.Application
 import android.content.res.Configuration

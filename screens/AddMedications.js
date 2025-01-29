@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { Text, View, TextInput, Button, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Import the date picker modal
 import MedicalFooter from '../components/MedicalFooter'; // Import the footer
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const Medications = () => {
   const [medicationName, setMedicationName] = useState('');
   const [frequency, setFrequency] = useState('Every day');
   const [count, setCount] = useState('');
+  const [userId, setUserId] = useState(''); // Use TypeScript's string type for state
   const [schedule, setSchedule] = useState([
     { time: '07:00', dosage: '1.0' },
     { time: '13:00', dosage: '1.0' },
@@ -30,38 +34,70 @@ const Medications = () => {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false); // Add state for start date picker visibility
 
-  const handleAddMedication = () => {
-    let selectedDaysString = '';
-    if (frequency === 'Day of the week') {
-      selectedDaysString = Object.keys(selectedDays)
-        .filter(day => selectedDays[day])
-        .join(', ');
-    }
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const userDetails = await AsyncStorage.getItem('userDetails');
+        if (userDetails) {
+          const parsedDetails = JSON.parse(userDetails); // Parse the stored JSON string
+          if (parsedDetails && parsedDetails.user_id) {
+            setUserId(parsedDetails.user_id); // Assuming 'user_id' is the property to display
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      } finally {
+        setLoading(false); // Set loading to false once data is fetched
+      }
+    };
 
-    let selectedDatesString = '';
-    if (frequency === 'Day of the month') {
-      selectedDatesString = selectedDates.join(', ');
-    }
+    fetchUserId();
+  }, []); 
+const handleAddMedication = async () => {
+  let selectedDaysString = '';
+  if (frequency === 'Day of the week') {
+    selectedDaysString = Object.keys(selectedDays)
+      .filter(day => selectedDays[day])
+      .join(', ');
+  }
 
-    console.log('Medication Added:');
-    console.log(`Name: ${medicationName}`);
-    console.log(`Frequency: ${frequency}`);
-    console.log(`Schedule: ${JSON.stringify(schedule)}`);
-    console.log(`Start Date: ${startDate}`);
-    console.log(`End Date: ${endDate}`);
-    
-    if (frequency === 'Every x days') {
-      console.log(`Every ${count} days`);
-    }
-    
-    if (frequency === 'Day of the week') {
-      console.log(`Days of the week: ${selectedDaysString}`);
-    }
+  let selectedDatesString = '';
+  if (frequency === 'Day of the month') {
+    selectedDatesString = selectedDates.join(', ');
+  }
 
-    if (frequency === 'Day of the month') {
-      console.log(`Days of the month: ${selectedDatesString}`);
-    }
+  const medicationData = {
+    user_id: userId, // Replace with the actual user ID
+    image_urls: [], // Include URLs of related images if required
+    medication_name: medicationName,
+    frequency: frequency,
+    date_time: new Date().toISOString(),
+    schedule: JSON.stringify(schedule),
+    start_date: startDate,
+    end_date: endDate,
+    count: frequency === 'Every x days' ? count : null,
+    selected_days: frequency === 'Day of the week' ? selectedDaysString : null,
+    selected_dates: frequency === 'Day of the month' ? selectedDatesString : null,
   };
+
+  console.log('Medication Added:', medicationData);
+
+  try {
+    const response = await axios.post('https://health-project-backend-url.vercel.app/medications_wrt_userId', medicationData);
+
+    if (response.data.success) {
+      console.log('Medication saved successfully:', response.data);
+      alert('Medication added successfully!');
+    } else {
+      console.error('Failed to save medication:', response.data.message);
+      alert('Failed to add medication. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error while saving medication:', error);
+    alert('An error occurred while adding the medication.');
+  }
+};
+
 
   const handleDelete = (index) => {
     const updatedSchedule = schedule.filter((_, i) => i !== index);

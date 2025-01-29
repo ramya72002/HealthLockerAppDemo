@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, Alert, Modal, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Calendar } from "react-native-calendars";
@@ -10,6 +10,8 @@ const CalendarView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
+  const [selectedMedications, setSelectedMedications] = useState([]); // State to store selected medications for the modal
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
 
   useEffect(() => {
     const fetchMedications = async () => {
@@ -72,15 +74,7 @@ const CalendarView = () => {
               }
 
               // Increment the date based on frequency
-              if (freq === "Every day" || freq === "daily") {
-                currentDate.setDate(currentDate.getDate() + 1);
-              } else if (freq === "Day of the week" && selected_days) {
-                // Increment until we reach a valid day of the week
-                currentDate.setDate(currentDate.getDate() + 1);
-              } else if (freq === "Day of the month" && selected_dates) {
-                // For day of the month, just increment by one day
-                currentDate.setDate(currentDate.getDate() + 1);
-              }
+              currentDate.setDate(currentDate.getDate() + 1);
             }
           });
 
@@ -98,6 +92,48 @@ const CalendarView = () => {
 
     fetchMedications();
   }, []);
+
+  // Handle day press event
+  const onDayPress = (day) => {
+    const selectedDay = day.dateString;
+
+    // Find all medications for the selected date
+    const medicationsForDay = medications.filter((med) => {
+      const schedule = med.schedule ? JSON.parse(med.schedule) : [];
+      const { start_date, end_date, frequency, selected_days, selected_dates } = med;
+
+      const startDate = new Date(start_date);
+      const endDate = new Date(end_date);
+
+      if (isNaN(startDate) || isNaN(endDate)) {
+        return false;
+      }
+
+      let currentDate = new Date(startDate);
+      const freq = frequency || "daily";
+
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        if (dateStr === selectedDay) {
+          return true; // Medication is scheduled for the selected day
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return false;
+    });
+
+    if (medicationsForDay.length > 0) {
+      setSelectedMedications(medicationsForDay); // Set all medications found for the selected day
+      setModalVisible(true); // Open modal with medication details
+    } else {
+      Alert.alert("No Medication", "No medication scheduled for this day.");
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedMedications([]); // Clear selected medications
+  };
 
   if (loading) {
     return (
@@ -123,11 +159,36 @@ const CalendarView = () => {
         markedDates={markedDates}
         markingType={"multi-dot"}
         style={styles.calendar}
+        onDayPress={onDayPress} // Handle date press
       />
 
       <View style={styles.footerContainer}>
         <MedicalFooter />
       </View>
+
+      {/* Modal for displaying medication details */}
+      {selectedMedications.length > 0 && (
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Medication Details</Text>
+              {selectedMedications.map((med, index) => (
+                <View key={index} style={styles.medicationDetail}>
+                  <Text style={styles.modalText}>Name: {med.medication_name}</Text>
+                  <Text style={styles.modalText}>Start Date: {med.start_date}</Text>
+                  <Text style={styles.modalText}>End Date: {med.end_date}</Text>
+                  <Text style={styles.modalText}>Frequency: {med.frequency}</Text>
+                  <Text style={styles.modalText}>Schedule: {med.schedule}</Text>
+                  <Text style={styles.modalText}>-----</Text>
+                </View>
+              ))}
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -172,6 +233,41 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginVertical: 5,
+  },
+  medicationDetail: {
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
 

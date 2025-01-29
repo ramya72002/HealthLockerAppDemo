@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { Calendar, CalendarList, Agenda } from "react-native-calendars"; // Import the Calendar component
+import { Calendar } from "react-native-calendars"; // Import the Calendar component
 import MedicalFooter from "../components/MedicalFooter"; // Ensure the path is correct
 
 const CalendarView = () => {
@@ -83,7 +83,10 @@ const CalendarView = () => {
         style={styles.calendar}
       />
       
-      <MedicalFooter />
+      {/* The footer will be at the bottom of the screen */}
+      <View style={styles.footerContainer}>
+        <MedicalFooter />
+      </View>
     </View>
   );
 };
@@ -93,11 +96,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#f9f9f9",
+    justifyContent: "flex-start", // Ensure content starts from the top
   },
   header: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginTop: 40,
     textAlign: "center",
     color: "#007BFF",
   },
@@ -119,6 +123,13 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "red",
+  },
+  footerContainer: {
+    position: "absolute", // Position footer at the bottom
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
   },
 });
 

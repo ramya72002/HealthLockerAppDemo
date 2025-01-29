@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, TouchableOpacity, Alert, TextInput, StyleSheet, Dimensions } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is correctly imported
 import QRCode from 'react-native-qrcode-svg'; // Import the QR code library
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 
 const { width } = Dimensions.get('screen');
 
 const Home = () => {
+  const navigation = useNavigation(); // Initialize navigation
   const [userId, setUserId] = useState(''); // Use TypeScript's string type for state
   const [loading, setLoading] = useState(true); // State for loading indicator
 
@@ -32,6 +34,10 @@ const Home = () => {
   const handleCopy = () => {
     Clipboard.setString(userId); // Copy userId to clipboard
     Alert.alert("Success", "User ID copied to clipboard!"); // Show a success message
+  };
+
+  const handleAddMedications = () => {
+    navigation.navigate('AddMedications'); // Navigate to AddMedications screen
   };
 
   return (
@@ -75,6 +81,11 @@ const Home = () => {
           </>
         )}
       </View>
+
+      {/* Add Medications Button */}
+      <TouchableOpacity style={styles.addMedicationsContainer} onPress={handleAddMedications}>
+        <Text style={styles.addMedicationsText}>ADD MEDICATIONS</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -138,6 +149,18 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
     textAlign: 'center',
+  },
+  addMedicationsContainer: {
+    marginTop: 30, // Add space between QR code and button
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    backgroundColor: '#007BFF', // Blue background for the button
+    borderRadius: 12,
+  },
+  addMedicationsText: {
+    color: '#fff', // White text for the button
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

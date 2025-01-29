@@ -6,7 +6,7 @@ import Header from './Header';
 import Input from './Input';
 import Switch from './Switch';
 import Select from './Select';
-
+import MedicalFooter from './MedicalFooter';
 export {
   Button,
   Card,
@@ -15,5 +15,7 @@ export {
   Input,
   Header,
   Switch, 
-  Select
+  Select,
+  MedicalFooter,
+  
 };

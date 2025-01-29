@@ -20,6 +20,7 @@ import DisplayRecords from "../screens/DisplayRecords";
 import Login from "../screens/Login";
 import CameraUpload from "../screens/CameraUpload";
 import SendEHR from "../screens/SendEHR";
+import AddMedications from "../screens/AddMedications"
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -212,7 +213,7 @@ export default function OnboardingStack(props) {
         headerShown: false,
       }}
     >
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Onboarding"
         component={Onboarding}
         option={{
@@ -225,7 +226,10 @@ export default function OnboardingStack(props) {
               <Stack.Screen name="Categories" component={Categories} />
               <Stack.Screen name="DisplayRecords" component={DisplayRecords} />              
               <Stack.Screen name="CameraUpload" component={CameraUpload} />
-              <Stack.Screen name="SendEHR" component={SendEHR} />
+              <Stack.Screen name="SendEHR" component={SendEHR} /> */}
+              <Stack.Screen name="AddMedications" component={AddMedications} />
+
+              
 
 
       <Stack.Screen name="App" component={AppStack} />

@@ -5,6 +5,7 @@ import MedicalFooter from '../components/MedicalFooter'; // Import the footer
 const Medications = () => {
   const [medicationName, setMedicationName] = useState('');
   const [frequency, setFrequency] = useState('Every day');
+  const [count, setCount] = useState('');
   const [schedule, setSchedule] = useState([
     { time: '07:00', dosage: '1.0' },
     { time: '13:00', dosage: '1.0' },
@@ -13,9 +14,18 @@ const Medications = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedDays, setSelectedDays] = useState({
+    Mon: false,
+    Tue: false,
+    Wed: false,
+    Thu: false,
+    Fri: false,
+    Sat: false,
+    Sun: false,
+  });
+  const [selectedDates, setSelectedDates] = useState([]);
 
   const handleAddMedication = () => {
-    // You can handle adding medication logic here
     console.log('Medication Added:', medicationName, frequency, schedule);
   };
 
@@ -31,28 +41,35 @@ const Medications = () => {
 
   const handleSaveRow = () => {
     const updatedSchedule = [...schedule];
-    updatedSchedule[selectedRow].time = updatedSchedule[selectedRow].time; // Add logic for time change
-    updatedSchedule[selectedRow].dosage = updatedSchedule[selectedRow].dosage; // Add logic for dosage change
+    updatedSchedule[selectedRow].time = updatedSchedule[selectedRow].time;
+    updatedSchedule[selectedRow].dosage = updatedSchedule[selectedRow].dosage;
     setSchedule(updatedSchedule);
     setEditMode(false);
   };
 
   const handleSelectFrequency = (selectedFrequency) => {
     setFrequency(selectedFrequency);
-    setModalVisible(false); // Close modal after selection
+    if (selectedFrequency === 'Day of the week') {
+      setCount(''); // Clear the count if frequency is "Day of the week"
+    }
+    setModalVisible(false);
   };
 
   const handleTimeChange = (text) => {
-    // Ensure time is in 24-hour format (e.g., 07:00)
     if (/^\d{1,2}:\d{0,2}$/.test(text)) {
-      const formattedText = text.length === 4 ? `0${text}` : text; // Format single digit hour to double digit
+      const formattedText = text.length === 4 ? `0${text}` : text;
       const updatedSchedule = [...schedule];
       updatedSchedule[selectedRow].time = formattedText;
       setSchedule(updatedSchedule);
     }
   };
 
-  // Footer button actions
+  const handleSelectDate = (day) => {
+    setSelectedDates((prevDates) =>
+      prevDates.includes(day) ? prevDates.filter((date) => date !== day) : [...prevDates, day]
+    );
+  };
+
   const handleCalendarPress = () => {
     console.log("Calendar pressed");
   };
@@ -74,12 +91,10 @@ const Medications = () => {
         onChangeText={setMedicationName}
       />
 
-      {/* Button to show frequency options */}
       <TouchableOpacity style={styles.input} onPress={() => setModalVisible(true)}>
         <Text style={styles.inputText}>{frequency}</Text>
       </TouchableOpacity>
 
-      {/* Modal for selecting frequency */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -101,15 +116,57 @@ const Medications = () => {
             <TouchableOpacity onPress={() => handleSelectFrequency('Day of the month')}>
               <Text style={styles.modalOption}>Day of the month</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleSelectFrequency('Any')}>
-              <Text style={styles.modalOption}>Any</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => setModalVisible(false)}>
               <Text style={styles.modalClose}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {frequency === 'Day of the week' && (
+        <View style={styles.checkboxContainer}>
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+            <TouchableOpacity
+              key={day}
+              style={styles.checkboxItem}
+              onPress={() =>
+                setSelectedDays((prevState) => ({
+                  ...prevState,
+                  [day]: !prevState[day],
+                }))
+              }
+            >
+              <Text style={styles.checkboxLabel}>{day}</Text>
+              {selectedDays[day] && <Text style={styles.checkboxChecked}>✔</Text>}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {frequency === 'Day of the month' && (
+        <View style={styles.checkboxContainer}>
+          {[...Array(31).keys()].map((num) => (
+            <TouchableOpacity
+              key={num + 1}
+              style={styles.checkboxItem}
+              onPress={() => handleSelectDate(num + 1)}
+            >
+              <Text style={styles.checkboxLabel}>{num + 1}</Text>
+              {selectedDates.includes(num + 1) && <Text style={styles.checkboxChecked}>✔</Text>}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {frequency === 'Every x days' && (
+        <TextInput
+          style={styles.input}
+          placeholder="Enter the number of x days you want to repeat"
+          keyboardType="numeric"
+          value={count}
+          onChangeText={setCount}
+        />
+      )}
 
       <View style={styles.table}>
         <View style={styles.tableRow}>
@@ -159,7 +216,6 @@ const Medications = () => {
 
       <Button title="Add Medication" onPress={handleAddMedication} style={styles.addMedicationButton} />
 
-      {/* Add the MedicalFooter at the bottom */}
       <MedicalFooter
         onCalendarPress={handleCalendarPress}
         onAddPress={handleAddPress}
@@ -171,11 +227,12 @@ const Medications = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // This makes the container take up the full height of the screen
+    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#f4f4f4',
     padding: 20,
+    marginTop: 20,
   },
   text: {
     fontSize: 28,
@@ -201,7 +258,7 @@ const styles = StyleSheet.create({
   table: {
     width: '100%',
     marginBottom: 20,
-    flexGrow: 1, // Allow table to take up remaining space
+    flexGrow: 1,
   },
   tableRow: {
     flexDirection: 'row',
@@ -217,7 +274,7 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     textAlign: 'center',
-   },
+  },
   deleteBtn: {
     color: 'red',
     fontWeight: 'bold',
@@ -255,9 +312,27 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   addMedicationButton: {
-    marginBottom: 50, // Adding gap below the button
+    marginBottom: 50,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  checkboxItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    marginRight: 5,
+  },
+  checkboxChecked: {
+    fontSize: 18,
+    color: 'green',
   },
 });
-
 
 export default Medications;

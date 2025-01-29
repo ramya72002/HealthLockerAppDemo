@@ -140,7 +140,7 @@ const Header = ({ back, title, white, transparent, bgColor, iconColor, titleColo
       <Block row style={styles.options}>
       <Button shadowless style={[styles.tab, styles.divider]} onPress={() => navigation.navigate('CameraUpload')}>
         <Block row middle >
-          <Icon name="diamond" family="ArgonExtra" style={{ paddingRight: 8, cursor: "pointer" }} color={argonTheme.COLORS.ICON} />
+          <Icon name="diamond" family="ArgonExtra" style={{ paddingRight: 8}} color={argonTheme.COLORS.ICON} />
           <Text size={16} style={styles.tabTitle}>{optionLeft || 'Upload EHR'}</Text>
         </Block>
       </Button>
@@ -152,7 +152,7 @@ const Header = ({ back, title, white, transparent, bgColor, iconColor, titleColo
       </Button>
       <Button shadowless style={[styles.tab, styles.divider]} onPress={() => navigation.navigate('SendEHR')}>
         <Block row middle >
-          <Icon name="diamond" family="ArgonExtra" style={{ paddingRight: 8, cursor: "pointer" }} color={argonTheme.COLORS.ICON} />
+          <Icon name="diamond" family="ArgonExtra" style={{ paddingRight: 8}} color={argonTheme.COLORS.ICON} />
           <Text size={16} style={styles.tabTitle}>{optionLeft || 'Send EHR'}</Text>
         </Block>
       </Button>

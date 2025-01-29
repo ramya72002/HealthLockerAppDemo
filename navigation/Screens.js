@@ -265,7 +265,7 @@ function AppStack(props) {
       initialRouteName="Home"
     >
       <Drawer.Screen
-        name="Home"
+        name="Home1"
         component={HomeStack}
         options={{
           headerShown: false,

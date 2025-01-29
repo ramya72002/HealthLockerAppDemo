@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ActivityIndicator, TouchableOpacity, Alert, Clipboard, TextInput, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, ActivityIndicator, TouchableOpacity, Alert, TextInput, StyleSheet, Dimensions } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is correctly imported
+import QRCode from 'react-native-qrcode-svg'; // Import the QR code library
 
 const { width } = Dimensions.get('screen');
 
@@ -50,13 +51,28 @@ const Home = () => {
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
-          <TouchableOpacity onPress={handleCopy}>
-            <TextInput
-              style={styles.userId}
-              editable={false} // Prevent editing, just display userId
-              value={userId || 'Loading...'}
-            />
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity onPress={handleCopy}>
+              <TextInput
+                style={styles.userId}
+                editable={false} // Prevent editing, just display userId
+                value={userId || 'Loading...'}
+              />
+            </TouchableOpacity>
+            
+            {/* QR Code */}
+            {userId ? (
+              <View style={styles.qrContainer}>
+                <Text style={styles.qrText}>Scan this QR code to share your User ID:</Text>
+                <QRCode
+                  value={userId} // Pass the userId as the value for the QR code
+                  size={150} // Set size for the QR code
+                  backgroundColor="white" // Background color of the QR code
+                  color="black" // Foreground color of the QR code
+                />
+              </View>
+            ) : null}
+          </>
         )}
       </View>
     </View>
@@ -111,6 +127,16 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     width: '80%', // Set a width limit
+    textAlign: 'center',
+  },
+  qrContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  qrText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 10,
     textAlign: 'center',
   },
 });

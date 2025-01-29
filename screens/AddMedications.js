@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, TextInput, Button, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Import the date picker modal
 import MedicalFooter from '../components/MedicalFooter'; // Import the footer
 
 const Medications = () => {
@@ -24,9 +25,42 @@ const Medications = () => {
     Sun: false,
   });
   const [selectedDates, setSelectedDates] = useState([]);
+  const [endDate, setEndDate] = useState(''); // Add state for end date
+  const [startDate, setStartDate] = useState(''); // Add state for start date
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false); // Add state for start date picker visibility
 
   const handleAddMedication = () => {
-    console.log('Medication Added:', medicationName, frequency, schedule);
+    let selectedDaysString = '';
+    if (frequency === 'Day of the week') {
+      selectedDaysString = Object.keys(selectedDays)
+        .filter(day => selectedDays[day])
+        .join(', ');
+    }
+
+    let selectedDatesString = '';
+    if (frequency === 'Day of the month') {
+      selectedDatesString = selectedDates.join(', ');
+    }
+
+    console.log('Medication Added:');
+    console.log(`Name: ${medicationName}`);
+    console.log(`Frequency: ${frequency}`);
+    console.log(`Schedule: ${JSON.stringify(schedule)}`);
+    console.log(`Start Date: ${startDate}`);
+    console.log(`End Date: ${endDate}`);
+    
+    if (frequency === 'Every x days') {
+      console.log(`Every ${count} days`);
+    }
+    
+    if (frequency === 'Day of the week') {
+      console.log(`Days of the week: ${selectedDaysString}`);
+    }
+
+    if (frequency === 'Day of the month') {
+      console.log(`Days of the month: ${selectedDatesString}`);
+    }
   };
 
   const handleDelete = (index) => {
@@ -70,14 +104,30 @@ const Medications = () => {
     );
   };
 
-  const handleCalendarPress = () => {
-    console.log("Calendar pressed");
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
   };
-  const handleAddPress = () => {
-    console.log("Add pressed");
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
   };
-  const handleViewPress = () => {
-    console.log("View pressed");
+
+  const showStartDatePicker = () => {
+    setStartDatePickerVisible(true); // Show the start date picker
+  };
+
+  const hideStartDatePicker = () => {
+    setStartDatePickerVisible(false);
+  };
+
+  const handleConfirmDate = (date) => {
+    setEndDate(date.toISOString().split('T')[0]); // Format date as YYYY-MM-DD
+    hideDatePicker();
+  };
+
+  const handleConfirmStartDate = (date) => {
+    setStartDate(date.toISOString().split('T')[0]); // Format date as YYYY-MM-DD
+    hideStartDatePicker();
   };
 
   return (
@@ -90,6 +140,9 @@ const Medications = () => {
         value={medicationName}
         onChangeText={setMedicationName}
       />
+<TouchableOpacity style={styles.input} onPress={showStartDatePicker}>
+        <Text style={styles.inputText}>{startDate || 'Select Start Date'}</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.input} onPress={() => setModalVisible(true)}>
         <Text style={styles.inputText}>{frequency}</Text>
@@ -167,6 +220,25 @@ const Medications = () => {
           onChangeText={setCount}
         />
       )}
+      
+      {/* Date picker for End Date */}
+      <TouchableOpacity style={styles.input} onPress={showDatePicker}>
+        <Text style={styles.inputText}>{endDate || 'Select End Date'}</Text>
+      </TouchableOpacity>
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirmDate}
+        onCancel={hideDatePicker}
+      />
+
+      <DateTimePickerModal
+        isVisible={isStartDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirmStartDate}
+        onCancel={hideStartDatePicker}
+      />
 
       <View style={styles.table}>
         <View style={styles.tableRow}>
@@ -191,7 +263,7 @@ const Medications = () => {
           )}
         />
       </View>
-
+    
       {editMode && (
         <View style={styles.editContainer}>
           <TextInput
@@ -214,13 +286,9 @@ const Medications = () => {
         </View>
       )}
 
-      <Button title="Add Medication" onPress={handleAddMedication} style={styles.addMedicationButton} />
-
-      <MedicalFooter
-        onCalendarPress={handleCalendarPress}
-        onAddPress={handleAddPress}
-        onViewPress={handleViewPress}
-      />
+      <Button title="Add Medication" onPress={handleAddMedication} />
+      
+      <MedicalFooter />
     </View>
   );
 };

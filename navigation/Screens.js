@@ -22,7 +22,7 @@ import CameraUpload from "../screens/CameraUpload";
 import SendEHR from "../screens/SendEHR";
 import AddMedications from "../screens/AddMedications";
 import MedView from "../screens/MedView";
-import CalenderView from "../screens/CalenderView";
+import CalendarView from "../screens/CalendarView";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState, useEffect } from "react";
@@ -230,7 +230,7 @@ export default function OnboardingStack(props) {
               <Stack.Screen name="SendEHR" component={SendEHR} /> */}
               <Stack.Screen name="AddMedications" component={AddMedications} />
               <Stack.Screen name="MedView" component={MedView} />
-              <Stack.Screen name="CalenderView" component={CalenderView} />
+              <Stack.Screen name="CalendarView" component={CalendarView} />
 
 
               

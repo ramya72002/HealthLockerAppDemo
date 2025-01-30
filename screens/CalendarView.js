@@ -27,7 +27,6 @@ const CalendarView = () => {
 
           const userMedications = response.data?.medications || [];
           setMedications(userMedications);
-
           const medicationDates = {};
 
           userMedications.forEach((med) => {
@@ -153,43 +152,63 @@ const CalendarView = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Medications Calendar</Text>
-
-      <Calendar
-        markedDates={markedDates}
-        markingType={"multi-dot"}
-        style={styles.calendar}
-        onDayPress={onDayPress} // Handle date press
-      />
-
-      <View style={styles.footerContainer}>
-        <MedicalFooter />
-      </View>
-
-      {/* Modal for displaying medication details */}
-      {selectedMedications.length > 0 && (
-        <Modal visible={modalVisible} animationType="slide" transparent={true}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Medication Details</Text>
-              {selectedMedications.map((med, index) => (
-                <View key={index} style={styles.medicationDetail}>
-                  <Text style={styles.modalText}>Name: {med.medication_name}</Text>
-                  <Text style={styles.modalText}>Start Date: {med.start_date}</Text>
-                  <Text style={styles.modalText}>End Date: {med.end_date}</Text>
-                  <Text style={styles.modalText}>Frequency: {med.frequency}</Text>
-                  <Text style={styles.modalText}>Schedule: {med.schedule}</Text>
-                  <Text style={styles.modalText}>-----</Text>
-                </View>
-              ))}
-              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
+    <Text style={styles.header}>Medications Calendar</Text>
+  
+    <Calendar
+      markedDates={markedDates}
+      markingType={"multi-dot"}
+      style={styles.calendar}
+      onDayPress={onDayPress} // Handle date press
+    />
+  
+    <View style={styles.footerContainer}>
+      <MedicalFooter />
     </View>
+  
+    {/* Modal for displaying medication details */}
+    {selectedMedications.length > 0 && (
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Medication Details</Text>
+            
+            {selectedMedications.map((med, index) => (
+  <View key={index}>
+    <Text style={styles.modalText}>Name: {med.medication_name}</Text>
+    <Text style={styles.modalText}>Start Date: {med.start_date}</Text>
+    <Text style={styles.modalText}>End Date: {med.end_date}</Text>
+    <Text style={styles.modalText}>Frequency: {med.frequency}</Text>
+  </View>
+))}
+
+  
+            {/* Table for displaying the schedule */}
+            <View style={styles.table}>
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableHeaderText}>Time</Text>
+                <Text style={styles.tableHeaderText}>Dosage</Text>
+              </View>
+  
+              {selectedMedications.map((med, index) => {
+                const schedule = med.schedule ? JSON.parse(med.schedule) : [];
+                return schedule.map((item, itemIndex) => (
+                  <View key={itemIndex} style={styles.tableRow}>
+                    <Text style={styles.tableCell}>{item.time}</Text>
+                    <Text style={styles.tableCell}>{item.dosage}</Text>
+                  </View>
+                ));
+              })}
+            </View>
+  
+            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    )}
+  </View>
+  
   );
 };
 
@@ -267,6 +286,37 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: "white",
+    fontSize: 16,
+  },table: {
+    marginTop: 10,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  tableHeaderText: {
+    fontWeight: 'bold',
+    width: '50%',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  tableCell: {
+    width: '50%',
+    textAlign: 'center',
     fontSize: 16,
   },
 });

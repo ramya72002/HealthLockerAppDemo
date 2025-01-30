@@ -9,7 +9,39 @@ const MedView = () => {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const deleteMedication = async (medicationId) => {
+    try {
+      const userDetails = await AsyncStorage.getItem("userDetails");
+      const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
+  
+      if (parsedDetails?.user_id) {
+        console.log(medicationId)
+        const response = await axios.post(
+          'https://health-project-backend-url.vercel.app/delete_medication_wrt_id',
+          {
+            user_id: parsedDetails.user_id,
+            medication_id: medicationId,
+          }
+        );
+  
+        if (response.data.success) {
+          // If deletion is successful, update the medications list
+          setMedications((prevMedications) =>
+            prevMedications.filter((med) => med.id !== medicationId)
+          );
+          Alert.alert("Success", "Medication deleted successfully.");
+        } else {
+          Alert.alert("Error", "Failed to delete medication.");
+        }
+      } else {
+        Alert.alert("Error", "User details not found. Please log in again.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred while deleting the medication.");
+    }
+  };
+  
   useEffect(() => {
     const fetchMedications = async () => {
       try {
@@ -61,10 +93,7 @@ const MedView = () => {
     ]);
   };
 
-  const deleteMedication = (medicationId) => {
-    // Implement your delete logic here
-    console.log(`Deleting medication with ID: ${medicationId}`);
-  };
+ 
 
   return (
     <View style={styles.container}>
@@ -107,8 +136,8 @@ const MedView = () => {
               {/* Delete Button */}
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDelete(item.id)} // Assuming item.id is available
-              >
+                onPress={() => handleDelete(item.medication_id)} // Assuming item.id is available
+               >
                 <Icon name="delete" size={20} color="white" />
               </TouchableOpacity>
             </View>

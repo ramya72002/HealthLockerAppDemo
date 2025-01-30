@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import the icon library
 import MedicalFooter from "../components/MedicalFooter"; // Ensure the path is correct
 
 const MedView = () => {
@@ -12,17 +13,14 @@ const MedView = () => {
   useEffect(() => {
     const fetchMedications = async () => {
       try {
-        // Fetch user details from AsyncStorage
         const userDetails = await AsyncStorage.getItem("userDetails");
         const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
 
         if (parsedDetails?.user_id) {
-          // Fetch medications using the user ID
           const response = await axios.post(
             `https://health-project-backend-url.vercel.app/get_medications_wrt_userId`,
-            { user_id: parsedDetails.user_id } // Include user ID in the request body
+            { user_id: parsedDetails.user_id }
           );
-
           const userMedications = response.data?.medications || [];
           setMedications(userMedications);
         } else {
@@ -54,6 +52,19 @@ const MedView = () => {
       </View>
     );
   }
+
+  const handleDelete = (medicationId) => {
+    // You can handle the delete action here (e.g., show a confirmation prompt)
+    Alert.alert("Delete Medication", "Are you sure you want to delete this medication?", [
+      { text: "Cancel" },
+      { text: "Delete", onPress: () => deleteMedication(medicationId) },
+    ]);
+  };
+
+  const deleteMedication = (medicationId) => {
+    // Implement your delete logic here
+    console.log(`Deleting medication with ID: ${medicationId}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -92,6 +103,14 @@ const MedView = () => {
                   <Text style={styles.boldText}>Selected Days: </Text>{item.selected_days}
                 </Text>
               )}
+
+              {/* Delete Button */}
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDelete(item.id)} // Assuming item.id is available
+              >
+                <Icon name="delete" size={20} color="white" />
+              </TouchableOpacity>
             </View>
           );
         }}
@@ -125,6 +144,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: "#ddd",
+    position: "relative", // Important for positioning the delete button
   },
   medicationName: {
     fontSize: 18,
@@ -137,18 +157,17 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  // Schedule Box
   scheduleBox: {
     marginTop: 15,
     padding: 15,
-    backgroundColor: "#e6f2ff",  // Light blue background for clarity
+    backgroundColor: "#e6f2ff",
     borderRadius: 8,
-    borderColor: "#007BFF", // Blue border
+    borderColor: "#007BFF",
     borderWidth: 1,
   },
   scheduleTitle: {
     fontSize: 16,
-    color: "#007BFF",  // Blue for consistency
+    color: "#007BFF",
     fontWeight: "bold",
   },
   medicationSchedule: {
@@ -189,6 +208,17 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "red",
+  },
+
+  // Delete Button
+  deleteButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 50,
+    elevation: 5,
   },
 });
 

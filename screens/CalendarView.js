@@ -170,49 +170,50 @@ const CalendarView = () => {
     <View style={styles.footerContainer}>
       <MedicalFooter />
     </View>
-  
-    {/* Modal for displaying medication details */}
-    {selectedMedications.length > 0 && (
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Medication Details</Text>
-            
-            {selectedMedications.map((med, index) => (
-  <View key={index}>
-    <Text style={styles.modalText}>Name: {med.medication_name}</Text>
-    <Text style={styles.modalText}>Start Date: {med.start_date}</Text>
-    <Text style={styles.modalText}>End Date: {med.end_date}</Text>
-    <Text style={styles.modalText}>Frequency: {med.frequency}</Text>
-  </View>
-))}
-
-  
-            {/* Table for displaying the schedule */}
-            <View style={styles.table}>
-              <View style={styles.tableHeader}>
-                <Text style={styles.tableHeaderText}>Time</Text>
-                <Text style={styles.tableHeaderText}>Dosage</Text>
+  {/* Modal for displaying medication details */}
+{selectedMedications.length > 0 && (
+  <Modal visible={modalVisible} animationType="slide" transparent={true}>
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>Medication Details</Text>
+        
+        {selectedMedications.map((med, index) => {
+          const schedule = med.schedule ? JSON.parse(med.schedule) : [];
+          return (
+            <View key={`med-${index}`} style={styles.medicationContainer}>
+              {/* Medication Details */}
+              <View style={styles.medicationHeader}>
+                <Text style={styles.modalText}>Name: {med.medication_name}</Text>
+                <Text style={styles.modalText}>Start: {med.start_date}</Text>
+                <Text style={styles.modalText}>End: {med.end_date}</Text>
+                <Text style={styles.modalText}>Frequency: {med.frequency}</Text>
               </View>
-  
-              {selectedMedications.map((med, index) => {
-                const schedule = med.schedule ? JSON.parse(med.schedule) : [];
-                return schedule.map((item, itemIndex) => (
-                  <View key={itemIndex} style={styles.tableRow}>
+
+              {/* Schedule Table for This Medication */}
+              <View style={styles.table}>
+                <View style={styles.tableHeader}>
+                  <Text style={styles.tableHeaderText}>Time</Text>
+                  <Text style={styles.tableHeaderText}>Dosage</Text>
+                </View>
+                
+                {schedule.map((item, itemIndex) => (
+                  <View key={`sched-${itemIndex}`} style={styles.tableRow}>
                     <Text style={styles.tableCell}>{item.time}</Text>
                     <Text style={styles.tableCell}>{item.dosage}</Text>
                   </View>
-                ));
-              })}
+                ))}
+              </View>
             </View>
-  
-            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    )}
+          );
+        })}
+
+        <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+          <Text style={styles.closeButtonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+)}
   </View>
   
   );

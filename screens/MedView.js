@@ -21,16 +21,16 @@ const MedView = () => {
         const response = await axios.post(
           `https://health-project-backend-url.vercel.app/get_medications_wrt_userId`,
           { user_id: parsedDetails.user_id }
-        );
+        );        
         const userMedications = response.data?.medications || [];
         setMedications(userMedications);
       } else {
         Alert.alert("Error", "User details not found. Please log in again.");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch medications.");
-    } finally {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Message:", error.message);
+      } }finally {
       setLoading(false);
     }
   };
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   header: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",

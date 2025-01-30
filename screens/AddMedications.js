@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   text: {
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: '600',
     color: '#333',
     marginBottom: 20,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 14,
     color: '#333',
   },
   table: {
@@ -406,17 +406,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   modalOption: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
     marginVertical: 5,
   },
   modalClose: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'blue',
     marginTop: 10,
   },
@@ -435,11 +435,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   checkboxLabel: {
-    fontSize: 16,
+    fontSize: 14,
     marginRight: 5,
   },
   checkboxChecked: {
-    fontSize: 18,
+    fontSize: 14,
     color: 'green',
   },
 });

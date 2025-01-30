@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, Button, StyleSheet, TouchableOpacity, FlatList, Modal } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Import the date picker modal
 import MedicalFooter from '../components/MedicalFooter'; // Import the footer
@@ -36,6 +36,7 @@ const Medications = () => {
   const [startDate, setStartDate] = useState(''); // Add state for start date
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false); // Add state for start date picker visibility
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false); // Add state for time picker visibility
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -55,63 +56,58 @@ const Medications = () => {
     };
 
     fetchUserId();
-  }, []); 
-const handleAddMedication = async () => {
-  let selectedDaysString = '';
-  if (frequency === 'Day of the week') {
-    selectedDaysString = Object.keys(selectedDays)
-      .filter(day => selectedDays[day])
-      .join(', ');
-  }
+  }, []);
 
-  let selectedDatesString = '';
-  if (frequency === 'Day of the month') {
-    selectedDatesString = selectedDates.join(', ');
-  }
-
-  const medicationData = {
-    user_id: userId, // Replace with the actual user ID
-    image_urls: [], // Include URLs of related images if required
-    medication_name: medicationName,
-    frequency: frequency,
-    date_time: new Date().toISOString(),
-    schedule: JSON.stringify(schedule),
-    start_date: startDate,
-    end_date: endDate,
-    count: frequency === 'Every x days' ? count : null,
-    selected_days: frequency === 'Day of the week' ? selectedDaysString : null,
-    selected_dates: frequency === 'Day of the month' ? selectedDatesString : null,
-  };
-
-  console.log('Medication Added:', medicationData);
-
-  try {
-    const response = await axios.post('https://health-project-backend-url.vercel.app/medications_wrt_userId', medicationData);
-
-    if (response.data.success) {
-      console.log('Medication saved successfully:', response.data);
-      alert('Medication added successfully!');
-      navigation.navigate("CalendarView");
-
-    } else {
-      console.error('Failed to save medication:', response.data.message);
-      alert('Failed to add medication. Please try again.');
+  const handleAddMedication = async () => {
+    let selectedDaysString = '';
+    if (frequency === 'Day of the week') {
+      selectedDaysString = Object.keys(selectedDays)
+        .filter(day => selectedDays[day])
+        .join(', ');
     }
-  } catch (error) {
-    console.error('Error while saving medication:', error);
-    alert('An error occurred while adding the medication.');
-  }
-};
 
+    let selectedDatesString = '';
+    if (frequency === 'Day of the month') {
+      selectedDatesString = selectedDates.join(', ');
+    }
+
+    const medicationData = {
+      user_id: userId, // Replace with the actual user ID
+      image_urls: [], // Include URLs of related images if required
+      medication_name: medicationName,
+      frequency: frequency,
+      date_time: new Date().toISOString(),
+      schedule: JSON.stringify(schedule),
+      start_date: startDate,
+      end_date: endDate,
+      count: frequency === 'Every x days' ? count : null,
+      selected_days: frequency === 'Day of the week' ? selectedDaysString : null,
+      selected_dates: frequency === 'Day of the month' ? selectedDatesString : null,
+    };
+
+    console.log('Medication Added:', medicationData);
+
+    try {
+      const response = await axios.post('https://health-project-backend-url.vercel.app/medications_wrt_userId', medicationData);
+
+      if (response.data.success) {
+        console.log('Medication saved successfully:', response.data);
+        alert('Medication added successfully!');
+        navigation.navigate("CalendarView");
+
+      } else {
+        console.error('Failed to save medication:', response.data.message);
+        alert('Failed to add medication. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error while saving medication:', error);
+      alert('An error occurred while adding the medication.');
+    }
+  };
 
   const handleDelete = (index) => {
     const updatedSchedule = schedule.filter((_, i) => i !== index);
     setSchedule(updatedSchedule);
-  };
-
-  const handleEditRow = (index) => {
-    setSelectedRow(index);
-    setEditMode(true);
   };
 
   const handleSaveRow = () => {
@@ -130,13 +126,11 @@ const handleAddMedication = async () => {
     setModalVisible(false);
   };
 
-  const handleTimeChange = (text) => {
-    if (/^\d{1,2}:\d{0,2}$/.test(text)) {
-      const formattedText = text.length === 4 ? `0${text}` : text;
-      const updatedSchedule = [...schedule];
-      updatedSchedule[selectedRow].time = formattedText;
-      setSchedule(updatedSchedule);
-    }
+  const handleTimeConfirm = (time) => {
+    const updatedSchedule = [...schedule];
+    updatedSchedule[selectedRow].time = time.toTimeString().split(' ')[0].substring(0, 5); // Format time as HH:MM
+    setSchedule(updatedSchedule);
+    setTimePickerVisible(false);
   };
 
   const handleSelectDate = (day) => {
@@ -181,7 +175,7 @@ const handleAddMedication = async () => {
         value={medicationName}
         onChangeText={setMedicationName}
       />
-<TouchableOpacity style={styles.input} onPress={showStartDatePicker}>
+      <TouchableOpacity style={styles.input} onPress={showStartDatePicker}>
         <Text style={styles.inputText}>{startDate || 'Select Start Date'}</Text>
       </TouchableOpacity>
 
@@ -261,7 +255,7 @@ const handleAddMedication = async () => {
           onChangeText={setCount}
         />
       )}
-      
+
       {/* Date picker for End Date */}
       <TouchableOpacity style={styles.input} onPress={showDatePicker}>
         <Text style={styles.inputText}>{endDate || 'Select End Date'}</Text>
@@ -281,6 +275,13 @@ const handleAddMedication = async () => {
         onCancel={hideStartDatePicker}
       />
 
+      <DateTimePickerModal
+        isVisible={isTimePickerVisible}
+        mode="time"
+        onConfirm={handleTimeConfirm}
+        onCancel={() => setTimePickerVisible(false)}
+      />
+
       <View style={styles.table}>
         <View style={styles.tableRow}>
           <Text style={styles.tableHeader}>Time</Text>
@@ -293,7 +294,7 @@ const handleAddMedication = async () => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => (
             <View style={styles.tableRow}>
-              <TouchableOpacity onPress={() => handleEditRow(index)}>
+              <TouchableOpacity onPress={() => { setSelectedRow(index); setTimePickerVisible(true); }}>
                 <Text style={styles.tableCell}>{item.time}</Text>
               </TouchableOpacity>
               <Text style={styles.tableCell}>{item.dosage}</Text>
@@ -304,15 +305,12 @@ const handleAddMedication = async () => {
           )}
         />
       </View>
-    
+
       {editMode && (
         <View style={styles.editContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Time"
-            value={schedule[selectedRow].time}
-            onChangeText={handleTimeChange}
-          />
+          <TouchableOpacity onPress={() => setTimePickerVisible(true)}>
+            <Text style={styles.input}>{schedule[selectedRow].time}</Text>
+          </TouchableOpacity>
           <TextInput
             style={styles.input}
             placeholder="Dosage"
@@ -328,7 +326,7 @@ const handleAddMedication = async () => {
       )}
 
       <Button title="Add Medication" onPress={handleAddMedication} />
-      
+
       <MedicalFooter />
     </View>
   );

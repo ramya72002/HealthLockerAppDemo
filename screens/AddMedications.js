@@ -4,9 +4,12 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Import 
 import MedicalFooter from '../components/MedicalFooter'; // Import the footer
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import CalendarView from './CalendarView';
+import { useNavigation } from '@react-navigation/native'; // useNavigation hook
 
 const Medications = () => {
+  const navigation = useNavigation(); // useNavigation hook
+
   const [medicationName, setMedicationName] = useState('');
   const [frequency, setFrequency] = useState('Every day');
   const [count, setCount] = useState('');
@@ -88,6 +91,8 @@ const handleAddMedication = async () => {
     if (response.data.success) {
       console.log('Medication saved successfully:', response.data);
       alert('Medication added successfully!');
+      navigation.navigate("CalendarView");
+
     } else {
       console.error('Failed to save medication:', response.data.message);
       alert('Failed to add medication. Please try again.');

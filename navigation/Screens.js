@@ -214,7 +214,7 @@ export default function OnboardingStack(props) {
         headerShown: false,
       }}
     >
-      {/* <Stack.Screen
+      <Stack.Screen
         name="Onboarding"
         component={Onboarding}
         option={{
@@ -227,7 +227,7 @@ export default function OnboardingStack(props) {
               <Stack.Screen name="Categories" component={Categories} />
               <Stack.Screen name="DisplayRecords" component={DisplayRecords} />              
               <Stack.Screen name="CameraUpload" component={CameraUpload} />
-              <Stack.Screen name="SendEHR" component={SendEHR} /> */}
+              <Stack.Screen name="SendEHR" component={SendEHR} />
               <Stack.Screen name="AddMedications" component={AddMedications} />
               <Stack.Screen name="MedView" component={MedView} />
               <Stack.Screen name="CalendarView" component={CalendarView} />

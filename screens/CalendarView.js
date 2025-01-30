@@ -31,24 +31,30 @@ const CalendarView = () => {
 
           userMedications.forEach((med) => {
             const schedule = med.schedule ? JSON.parse(med.schedule) : [];
-            const { start_date, end_date, frequency, selected_days, selected_dates } = med;
-
+            const { start_date, end_date, frequency, selected_days, selected_dates, count } = med;
+          
             const startDate = new Date(start_date);
             const endDate = new Date(end_date);
-
+          
             if (isNaN(startDate) || isNaN(endDate)) {
               console.error(`Invalid start_date or end_date for ${med.medication_name}`);
               return;
             }
-
+          
             let currentDate = new Date(startDate);
             const freq = frequency || "daily";
-
-            // Iterate over dates within the range based on frequency
+            const interval = freq === "Every x days" && count ? parseInt(count, 10) : 1;
+          
+            // Iterate over dates within the range
             while (currentDate <= endDate) {
               const dateStr = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-
+          
               if (freq === "Every day" || freq === "daily") {
+                if (!medicationDates[dateStr]) {
+                  medicationDates[dateStr] = { dots: [], selected: true };
+                }
+                medicationDates[dateStr].dots.push({ color: "red", selectedDotColor: "red" });
+              } else if (freq === "Every x days" && interval > 0) {
                 if (!medicationDates[dateStr]) {
                   medicationDates[dateStr] = { dots: [], selected: true };
                 }
@@ -62,7 +68,6 @@ const CalendarView = () => {
                   medicationDates[dateStr].dots.push({ color: "red", selectedDotColor: "red" });
                 }
               } else if (freq === "Day of the month" && selected_dates) {
-                // Handle "Day of the month" frequency
                 const selectedDatesArray = selected_dates.split(",").map((date) => date.trim());
                 if (selectedDatesArray.includes(currentDate.getDate().toString())) {
                   if (!medicationDates[dateStr]) {
@@ -71,11 +76,12 @@ const CalendarView = () => {
                   medicationDates[dateStr].dots.push({ color: "red", selectedDotColor: "red" });
                 }
               }
-
-              // Increment the date based on frequency
-              currentDate.setDate(currentDate.getDate() + 1);
+          
+              // Increment the date
+              currentDate.setDate(currentDate.getDate() + interval);
             }
           });
+          
 
           setMarkedDates(medicationDates);
         } else {

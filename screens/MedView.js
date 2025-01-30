@@ -2,34 +2,57 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import the icon library
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Import the icon library
 import MedicalFooter from "../components/MedicalFooter"; // Ensure the path is correct
 
 const MedView = () => {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Function to fetch medications
+  const fetchMedications = async () => {
+    try {
+      setLoading(true); // Show loader during fetch
+      const userDetails = await AsyncStorage.getItem("userDetails");
+      const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
+
+      if (parsedDetails?.user_id) {
+        const response = await axios.post(
+          `https://health-project-backend-url.vercel.app/get_medications_wrt_userId`,
+          { user_id: parsedDetails.user_id }
+        );
+        const userMedications = response.data?.medications || [];
+        setMedications(userMedications);
+      } else {
+        Alert.alert("Error", "User details not found. Please log in again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch medications.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to delete a medication
   const deleteMedication = async (medicationId) => {
     try {
       const userDetails = await AsyncStorage.getItem("userDetails");
       const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
-  
+
       if (parsedDetails?.user_id) {
-        console.log(medicationId)
         const response = await axios.post(
-          'https://health-project-backend-url.vercel.app/delete_medication_wrt_id',
+          "https://health-project-backend-url.vercel.app/delete_medication_wrt_id",
           {
             user_id: parsedDetails.user_id,
             medication_id: medicationId,
           }
         );
-  
+
         if (response.data.success) {
-          // If deletion is successful, update the medications list
-          setMedications((prevMedications) =>
-            prevMedications.filter((med) => med.id !== medicationId)
-          );
           Alert.alert("Success", "Medication deleted successfully.");
+          fetchMedications(); // Re-fetch medications after deletion
         } else {
           Alert.alert("Error", "Failed to delete medication.");
         }
@@ -41,31 +64,9 @@ const MedView = () => {
       Alert.alert("Error", "An error occurred while deleting the medication.");
     }
   };
-  
+
+  // Fetch medications on component mount
   useEffect(() => {
-    const fetchMedications = async () => {
-      try {
-        const userDetails = await AsyncStorage.getItem("userDetails");
-        const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
-
-        if (parsedDetails?.user_id) {
-          const response = await axios.post(
-            `https://health-project-backend-url.vercel.app/get_medications_wrt_userId`,
-            { user_id: parsedDetails.user_id }
-          );
-          const userMedications = response.data?.medications || [];
-          setMedications(userMedications);
-        } else {
-          Alert.alert("Error", "User details not found. Please log in again.");
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch medications.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMedications();
   }, []);
 
@@ -86,14 +87,11 @@ const MedView = () => {
   }
 
   const handleDelete = (medicationId) => {
-    // You can handle the delete action here (e.g., show a confirmation prompt)
     Alert.alert("Delete Medication", "Are you sure you want to delete this medication?", [
       { text: "Cancel" },
       { text: "Delete", onPress: () => deleteMedication(medicationId) },
     ]);
   };
-
- 
 
   return (
     <View style={styles.container}>
@@ -107,7 +105,12 @@ const MedView = () => {
             <View style={styles.medicationItem}>
               <Text style={styles.medicationName}>{item.medication_name}</Text>
               <Text style={styles.medicationFrequency}>Frequency: {item.frequency}</Text>
-
+              {item.count && (
+                <Text style={styles.medicationDays}>
+                  <Text style={styles.boldText}>Repeat every: </Text>
+                  {item.count} days
+                </Text>
+              )}
               {/* Schedule Box */}
               <View style={styles.scheduleBox}>
                 <Text style={styles.scheduleTitle}>Schedule:</Text>
@@ -120,24 +123,28 @@ const MedView = () => {
 
               <View style={styles.dateContainer}>
                 <Text style={styles.medicationDates}>
-                  <Text style={styles.boldText}>Start Date: </Text>{item.start_date}
+                  <Text style={styles.boldText}>Start Date: </Text>
+                  {item.start_date}
                 </Text>
                 <Text style={styles.medicationDates}>
-                  <Text style={styles.boldText}>End Date: </Text>{item.end_date}
+                  <Text style={styles.boldText}>End Date: </Text>
+                  {item.end_date}
                 </Text>
               </View>
 
               {item.selected_days && (
                 <Text style={styles.medicationDays}>
-                  <Text style={styles.boldText}>Selected Days: </Text>{item.selected_days}
+                  <Text style={styles.boldText}>Selected Days: </Text>
+                  {item.selected_days}
                 </Text>
               )}
+              
 
               {/* Delete Button */}
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDelete(item.medication_id)} // Assuming item.id is available
-               >
+                onPress={() => handleDelete(item.medication_id)} // Assuming item.medication_id is available
+              >
                 <Icon name="delete" size={20} color="white" />
               </TouchableOpacity>
             </View>
@@ -182,6 +189,8 @@ const styles = StyleSheet.create({
   },
   medicationFrequency: {
     fontSize: 15,
+    fontWeight: "600",
+
     color: "#555",
     marginTop: 5,
   },

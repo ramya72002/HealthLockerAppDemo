@@ -45,7 +45,7 @@ const Register = () => {
       if (response.status === 201 && data.success) {
         // Navigate to the "app" screen after successful registration
         alert("Registration successful!");
-        navigation.navigate("app");
+        navigation.navigate("Login");
       } else if (response.status === 400 && data.message === "Email already registered.") {
         alert("Email is already registered. Please log in.");
         navigation.navigate("Login"); // Redirect to login if email already exists

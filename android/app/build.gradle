@@ -193,7 +193,11 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Specify the react-native-camera variant explicitly
+    implementation(project(path: ":react-native-camera", configuration: "generalRelease"))
 }
+
 
 if (rnVersion < versionToNumber(0, 75, 0)) {
     apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), "../native_modules.gradle");

@@ -194,8 +194,6 @@ dependencies {
         implementation jscFlavor
     }
 
-    // Specify the react-native-camera variant explicitly
-    implementation(project(path: ":react-native-camera", configuration: "generalRelease"))
 }
 
 

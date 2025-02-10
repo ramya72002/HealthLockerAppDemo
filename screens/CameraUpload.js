@@ -59,9 +59,9 @@ const CameraUpload = () => {
       });
 
       if (response.status === 200) {
-        const { image_url } = response.data;
+        const { file_url } = response.data;
         // After the image is uploaded successfully, navigate to Categories screen and pass the imageUrl
-        navigation.navigate("Categories", { imageUrl: image_url });
+        navigation.navigate("Categories", { imageUrl: file_url });
       } else {
         alert("Error uploading image");
       }

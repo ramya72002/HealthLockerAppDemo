@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, ActivityIndicator, TouchableOpacity, FlatList, Alert, Clipboard, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+  Clipboard,
+  TextInput,
+  Linking,
+  Modal,
+  StyleSheet,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -17,16 +30,25 @@ const DisplayRecords = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchEmail = async () => {
-      const userDetails = await AsyncStorage.getItem("userDetails");
-      const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
-      if (parsedDetails?.email) {
-        setEmail(parsedDetails.email);
-        setUserId(parsedDetails.user_id);
-      } else {
-        alert("User details not found. Please log in again.");
+      try {
+        const userDetails = await AsyncStorage.getItem("userDetails");
+        const parsedDetails = userDetails ? JSON.parse(userDetails) : null;
+        if (parsedDetails?.email) {
+          setEmail(parsedDetails.email);
+          setUserId(parsedDetails.user_id);
+        } else {
+          alert("User details not found. Please log in again.");
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        alert("An error occurred while fetching user details.");
         setLoading(false);
       }
     };
@@ -46,6 +68,7 @@ const DisplayRecords = () => {
         })
         .catch((error) => {
           console.error("Error fetching data: ", error);
+          alert("An error occurred while fetching records.");
           setLoading(false);
         });
     }
@@ -61,6 +84,11 @@ const DisplayRecords = () => {
     filterRecords(query, selectedCategory);
   };
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalVisible(true);
+  };
+
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
     filterRecords(searchQuery, category);
@@ -68,9 +96,11 @@ const DisplayRecords = () => {
 
   const filterRecords = (query, category) => {
     const lowercasedQuery = query.toLowerCase();
-    const filtered = records.filter((record) =>
-      (category === "All" || record.category === category) &&
-      (record.title.toLowerCase().includes(lowercasedQuery) || record.category.toLowerCase().includes(lowercasedQuery))
+    const filtered = records.filter(
+      (record) =>
+        (category === "All" || record.category === category) &&
+        (record.title.toLowerCase().includes(lowercasedQuery) ||
+          record.category.toLowerCase().includes(lowercasedQuery))
     );
     setFilteredRecords(filtered);
   };
@@ -94,6 +124,9 @@ const DisplayRecords = () => {
   };
 
   const handleSave = async (index) => {
+    if (isSaving) return;
+    setIsSaving(true);
+
     try {
       const updatedRecord = {
         user_id: userId,
@@ -102,11 +135,18 @@ const DisplayRecords = () => {
         category: editCategory,
       };
 
-      const response = await axios.put("https://health-project-backend-url.vercel.app/update_uploads_t&c", updatedRecord);
+      const response = await axios.put(
+        "https://health-project-backend-url.vercel.app/update_uploads_t&c",
+        updatedRecord
+      );
 
       if (response.data.success) {
         const updatedRecords = [...records];
-        updatedRecords[index] = { ...updatedRecords[index], title: editTitle, category: editCategory };
+        updatedRecords[index] = {
+          ...updatedRecords[index],
+          title: editTitle,
+          category: editCategory,
+        };
         setRecords(updatedRecords);
         setFilteredRecords(updatedRecords);
         setEditIndex(null);
@@ -117,25 +157,48 @@ const DisplayRecords = () => {
     } catch (error) {
       console.error("Error while saving data:", error);
       alert("An error occurred while saving the changes.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const renderItem = ({ item, index }) => {
-    const isPDF = item.image_url.toLowerCase().endsWith('.pdf');
-  
+    const isPDF = item.image_url.toLowerCase().endsWith(".pdf");
+
+    const handleDownload = () => {
+      if (isPDF) {
+        Linking.openURL(item.image_url);
+      } else {
+        handleImageClick(item.image_url);
+      }
+    };
+
     return (
       <View style={styles.recordContainer}>
-        {isPDF ? (
-          <Image source={require('../assets/imgs/pdf-icon.png')} style={styles.image} />
-        ) : (
-          <Image source={{ uri: item.image_url }} style={styles.image} />
-        )}
-  
+        <TouchableOpacity onPress={handleDownload}>
+          {isPDF ? (
+            <Image
+              source={require("../assets/imgs/pdf-icon.png")}
+              style={styles.image}
+            />
+          ) : (
+            <Image source={{ uri: item.image_url }} style={styles.image} />
+          )}
+        </TouchableOpacity>
+
         <View style={styles.detailsContainer}>
           {editIndex === index ? (
             <>
-              <TextInput style={styles.editInput} value={editTitle} onChangeText={setEditTitle} />
-              <TextInput style={styles.editInput} value={editCategory} onChangeText={setEditCategory} />
+              <TextInput
+                style={styles.editInput}
+                value={editTitle}
+                onChangeText={setEditTitle}
+              />
+              <TextInput
+                style={styles.editInput}
+                value={editCategory}
+                onChangeText={setEditCategory}
+              />
             </>
           ) : (
             <>
@@ -144,25 +207,42 @@ const DisplayRecords = () => {
             </>
           )}
           <View style={styles.dateContainer}>
-            <Text style={styles.date}>{new Date(item.date_time).toLocaleString()}</Text>
+            <Text style={styles.date}>
+              {new Date(item.date_time).toLocaleString()}
+            </Text>
             {editIndex === index && (
-              <TouchableOpacity onPress={() => handleSave(index)} style={styles.saveButton}>
-                <Text style={styles.saveButtonText}>Save</Text>
+              <TouchableOpacity
+                onPress={() => handleSave(index)}
+                style={styles.saveButton}
+                disabled={isSaving}
+              >
+                <Text style={styles.saveButtonText}>
+                  {isSaving ? "Saving..." : "Save"}
+                </Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
-  
-        <TouchableOpacity onPress={() => setMenuVisible(menuVisible === index ? null : index)} style={styles.menuButton}>
+
+        <TouchableOpacity
+          onPress={() => setMenuVisible(menuVisible === index ? null : index)}
+          style={styles.menuButton}
+        >
           <Text style={styles.menuDots}>⋮</Text>
         </TouchableOpacity>
-  
+
         {menuVisible === index && (
           <View style={styles.contextMenu}>
-            <TouchableOpacity onPress={() => handleCopyLink(item.image_url)} style={styles.menuOption}>
+            <TouchableOpacity
+              onPress={() => handleCopyLink(item.image_url)}
+              style={styles.menuOption}
+            >
               <Text style={styles.menuOptionText}>📋 Copy Link</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleEdit(item, index)} style={styles.menuOption}>
+            <TouchableOpacity
+              onPress={() => handleEdit(item, index)}
+              style={styles.menuOption}
+            >
               <Text style={styles.menuOptionText}>✏️ Edit</Text>
             </TouchableOpacity>
           </View>
@@ -170,7 +250,6 @@ const DisplayRecords = () => {
       </View>
     );
   };
-  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" />;
@@ -186,7 +265,10 @@ const DisplayRecords = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-        <TouchableOpacity onPress={() => setSortMenuVisible(!sortMenuVisible)} style={styles.sortButton}>
+        <TouchableOpacity
+          onPress={() => setSortMenuVisible(!sortMenuVisible)}
+          style={styles.sortButton}
+        >
           <Text style={styles.sortText}>Sort ⋮</Text>
         </TouchableOpacity>
         {sortMenuVisible && (
@@ -200,7 +282,26 @@ const DisplayRecords = () => {
           </View>
         )}
       </View>
-      <FlatList data={filteredRecords} renderItem={renderItem} keyExtractor={(item, index) => index.toString()} />
+      <FlatList
+        data={filteredRecords}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.toString()}
+      />
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity
+            style={styles.modalCloseButton}
+            onPress={() => setIsModalVisible(false)}
+          >
+            <Text style={styles.modalCloseText}>Close</Text>
+          </TouchableOpacity>
+          <Image source={{ uri: selectedImage }} style={styles.modalImage} />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -254,8 +355,8 @@ const styles = {
     marginBottom: 20,
     flexDirection: "row",
     alignItems: "center",
-    position: "relative", // Ensure relative positioning
-    zIndex: 1, // Lower than dropdowns
+    position: "relative",
+    zIndex: 1,
   },
   searchBox: {
     flex: 1,
@@ -285,8 +386,8 @@ const styles = {
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 5, // Ensure dropdown shadow is visible
-    zIndex: 999, // Higher than other elements
+    elevation: 5,
+    zIndex: 999,
   },
   sortOption: {
     fontSize: 16,
@@ -304,7 +405,7 @@ const styles = {
     shadowRadius: 5,
     elevation: 3,
     position: "relative",
-    zIndex: 1, // Ensure dropdown appears above this
+    zIndex: 1,
   },
   image: {
     width: 100,
@@ -349,14 +450,63 @@ const styles = {
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 10, // High elevation for Android
-    zIndex: 999, // Ensure it's on top
+    elevation: 10,
+    zIndex: 999,
     overflow: "visible",
   },
   menuOption: {
     padding: 10,
   },
   menuOptionText: {
+    fontSize: 16,
+    color: "#007BFF",
+  },
+  editInput: {
+    backgroundColor: "#f9f9f9",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 8,
+    fontSize: 16,
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  saveButton: {
+    marginLeft: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    backgroundColor: "#28a745",
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+  },
+  modalImage: {
+    width: "90%",
+    height: "80%",
+    resizeMode: "contain",
+  },
+  modalCloseButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+  },
+  modalCloseText: {
     fontSize: 16,
     color: "#007BFF",
   },

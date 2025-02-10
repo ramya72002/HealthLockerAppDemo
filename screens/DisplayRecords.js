@@ -120,51 +120,57 @@ const DisplayRecords = () => {
     }
   };
 
-  const renderItem = ({ item, index }) => (
-    <View style={styles.recordContainer}>
-      <Image source={{ uri: item.image_url }} style={styles.image} />
-      <View style={styles.detailsContainer}>
-        {editIndex === index ? (
-          <>
-            <TextInput style={styles.editInput} value={editTitle} onChangeText={setEditTitle} />
-            <TextInput style={styles.editInput} value={editCategory} onChangeText={setEditCategory} />
-          </>
+  const renderItem = ({ item, index }) => {
+    const isPDF = item.image_url.toLowerCase().endsWith('.pdf');
+  
+    return (
+      <View style={styles.recordContainer}>
+        {isPDF ? (
+          <Image source={require('../assets/imgs/pdf-icon.png')} style={styles.image} />
         ) : (
-          <>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.category}>{item.category}</Text>
-          </>
+          <Image source={{ uri: item.image_url }} style={styles.image} />
         )}
-        <View style={styles.dateContainer}>
-          <Text style={styles.date}>{new Date(item.date_time).toLocaleString()}</Text>
-          {editIndex === index && (
-            <TouchableOpacity onPress={() => handleSave(index)} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-      <TouchableOpacity onPress={() => setMenuVisible(menuVisible === index ? null : index)} style={styles.menuButton}>
-        <Text style={styles.menuDots}>⋮</Text>
-      </TouchableOpacity>
-      {menuVisible === index && (
-        <View style={styles.contextMenu}>
-          <TouchableOpacity onPress={() => handleCopyLink(item.image_url)} style={styles.menuOption}>
-            <Text style={styles.menuOptionText}>📋 Copy Link</Text>
-          </TouchableOpacity>
-          {editingRecord === item.id ? (
-            <TouchableOpacity onPress={() => handleSave(item.id)} style={styles.menuOption}>
-              <Text style={styles.menuOptionText}>💾 Save</Text>
-            </TouchableOpacity>
+  
+        <View style={styles.detailsContainer}>
+          {editIndex === index ? (
+            <>
+              <TextInput style={styles.editInput} value={editTitle} onChangeText={setEditTitle} />
+              <TextInput style={styles.editInput} value={editCategory} onChangeText={setEditCategory} />
+            </>
           ) : (
+            <>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.category}>{item.category}</Text>
+            </>
+          )}
+          <View style={styles.dateContainer}>
+            <Text style={styles.date}>{new Date(item.date_time).toLocaleString()}</Text>
+            {editIndex === index && (
+              <TouchableOpacity onPress={() => handleSave(index)} style={styles.saveButton}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+  
+        <TouchableOpacity onPress={() => setMenuVisible(menuVisible === index ? null : index)} style={styles.menuButton}>
+          <Text style={styles.menuDots}>⋮</Text>
+        </TouchableOpacity>
+  
+        {menuVisible === index && (
+          <View style={styles.contextMenu}>
+            <TouchableOpacity onPress={() => handleCopyLink(item.image_url)} style={styles.menuOption}>
+              <Text style={styles.menuOptionText}>📋 Copy Link</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => handleEdit(item, index)} style={styles.menuOption}>
               <Text style={styles.menuOptionText}>✏️ Edit</Text>
             </TouchableOpacity>
-          )}
-        </View>
-      )}
-    </View>
-  );
+          </View>
+        )}
+      </View>
+    );
+  };
+  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" />;

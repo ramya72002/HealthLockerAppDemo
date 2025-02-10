@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, Image } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, Image ,Linking} from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; 
 import { format } from "date-fns";  // Use date-fns for formatting
@@ -20,7 +20,9 @@ const Categories = () => {
   // Use the useRoute hook to access the params passed from the previous screen
   const route = useRoute();
   const { imageUrl } = route.params || {};  // Destructure imageUrl from params, default to an empty object
-
+  const isPdfFile = (url) => {
+    return url?.toLowerCase().endsWith('.pdf');
+  };
   const categories = [
     "Cardiology (Heart Health)",
     "Neurology (Brain & Nerves)",
@@ -153,13 +155,18 @@ console.log("iiii",imageUrl)
         onCancel={() => setShowDatePicker(false)}
       />
 
-      {/* Display uploaded image if imageUrl is available */}
-      {imageUrl && (
-        <View style={styles.imageContainer}>
-          <Text style={styles.imageText}>Uploaded Image</Text>
+{imageUrl && (
+      <View style={styles.imageContainer}>
+        <Text style={styles.imageText}>Uploaded File</Text>
+        {isPdfFile(imageUrl) ? (
+          <TouchableOpacity onPress={() => { Linking.openURL(imageUrl); }}>
+            <Text style={styles.pdfLink}>Click here to download PDF</Text>
+          </TouchableOpacity>
+        ) : (
           <Image source={{ uri: imageUrl }} style={styles.image} />
-        </View>
-      )}
+        )}
+      </View>
+    )}
 
       {/* Upload Button */}
       <TouchableOpacity
@@ -276,7 +283,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-  },
+  },pdfLink: {
+    fontSize: 16,
+    color: "#007BFF",
+    textDecorationLine: 'underline',
+    marginTop: 10,
+  }
+  
 });
 
 export default Categories;

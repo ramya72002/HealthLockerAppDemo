@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ActivityIndicator, TouchableOpacity, Alert, TextInput, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Image, ActivityIndicator, TouchableOpacity, Alert, TextInput, StyleSheet, Dimensions ,Clipboard} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is correctly imported
 import QRCode from 'react-native-qrcode-svg'; // Import the QR code library
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
